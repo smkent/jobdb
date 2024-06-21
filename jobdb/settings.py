@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -138,4 +139,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom settings
 
+AUTH_USER_MODEL = "main.User"
 FORMS_URLFIELD_ASSUME_HTTPS = True
