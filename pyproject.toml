@@ -20,6 +20,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 django = "^5.0.6"
+django-stubs = {extras = ["compatible-mypy"], version = "^5.0.2"}
 
 [tool.poetry.dev-dependencies]
 bandit = {extras = ["toml"], version = "*"}
