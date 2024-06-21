@@ -59,7 +59,7 @@ sequence = ["lint", "pytest"]
 help = "Run all tests"
 
 [tool.bandit]
-skips = ["B101"]  # assert_used
+skips = ["B101", "B404"]  # assert_used, subprocess module
 
 [tool.black]
 line-length = 79

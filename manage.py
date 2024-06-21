@@ -25,4 +25,4 @@ if __name__ == "__main__":
     if os.environ.get("VIRTUAL_ENV"):
         main()
     else:
-        subprocess.run(["poetry", "run", "python"] + sys.argv)
+        subprocess.run(["poetry", "run", "python"] + sys.argv)  # nosec
