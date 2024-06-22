@@ -1,7 +1,11 @@
 from functools import partial
+from typing import Any
 
 from django.contrib.admin import ModelAdmin, display, register
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db.models import QuerySet
+from django.forms import ModelForm
+from django.http import HttpRequest
 from django.utils.html import format_html
 
 from ..admin import personal_admin_site
@@ -70,8 +74,7 @@ class PostingAdmin(ModelAdmin):
         return "Yes" if bool(obj.closed) else "No"
 
 
-@register_portal(Application)
-class ApplicationPortalAdmin(ModelAdmin):
+class ApplicationAdminBase(ModelAdmin):
     list_display = ["summary", "applied", "reported", "bona_fide"]
     list_display_links = ["summary"]
     list_filter = ["bona_fide", "posting__company__name"]
@@ -88,8 +91,28 @@ class ApplicationPortalAdmin(ModelAdmin):
         return f"{obj.posting.company.name} • {obj.posting.title}"
 
 
+class ApplicationPortalAdminForm(ModelForm):
+    current_user: User
+
+    class Meta:
+        model = Application
+        exclude = ["user"]
+
+
+@register_portal(Application)
+class ApplicationPortalAdmin(ApplicationAdminBase):
+    form = ApplicationPortalAdminForm
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        return super().get_queryset(request).filter(user=request.user)
+
+    def save_model(
+        self, request: HttpRequest, obj: Application, *args: Any, **kwargs: Any
+    ) -> None:
+        obj.user = request.user
+        super().save_model(request, obj, *args, **kwargs)
+
+
 @register(Application)
-class ApplicationAdmin(ApplicationPortalAdmin):
-    list_display = [
-        "user"
-    ] + ApplicationPortalAdmin.list_display  # type: ignore
+class ApplicationAdmin(ApplicationAdminBase):
+    list_display = ["user"] + ApplicationAdminBase.list_display  # type: ignore

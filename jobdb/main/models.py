@@ -8,6 +8,7 @@ from django.db.models import (
     IntegerField,
     Model,
     TextField,
+    UniqueConstraint,
     URLField,
 )
 from django_extensions.db.models import TimeStampedModel  # type: ignore
@@ -127,3 +128,9 @@ class Application(Model):
 
     class Meta:
         verbose_name = "Job application"
+        constraints = [
+            UniqueConstraint(
+                fields=["user", "posting"],
+                name="single_application_per_user_posting",
+            )
+        ]
