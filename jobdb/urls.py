@@ -8,7 +8,9 @@ urlpatterns = [
     path("admin/", admin_site.urls),
     path("portal/", personal_admin_site.urls),
     path(
-        "login/", LoginView.as_view(template_name="login.html"), name="login"
+        "login/",
+        LoginView.as_view(template_name="login.html"),
+        name="login",
     ),
     path("logout/", LogoutView.as_view()),
     path("", include("jobdb.main.urls")),

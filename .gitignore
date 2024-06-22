@@ -6,4 +6,5 @@
 .pytest_results.xml
 .venv/
 dist/
+jobdb/static/
 db.sqlite3

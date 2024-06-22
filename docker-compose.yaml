@@ -5,6 +5,8 @@ networks:
 services:
   jobdb:
     build: .
+    environment:
+      SECRET_KEY: insecure_example_change_me
     depends_on:
     - db
     networks:

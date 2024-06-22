@@ -5,6 +5,11 @@ set -ex
 export DJANGO_SETTINGS_MODULE="jobdb.settings.production"
 
 django-admin migrate
+django-admin collectstatic --noinput
 
-# shellcheck disable=SC2086
-exec django-admin runserver --insecure 0.0.0.0:8888 >/proc/1/fd/1 2>/proc/1/fd/2
+if [ -n "${DEBUG_SERVER}" ]; then
+    # shellcheck disable=SC2086
+    exec django-admin runserver 0.0.0.0:8888 >/proc/1/fd/1 2>/proc/1/fd/2
+else
+    exec gunicorn jobdb.wsgi:application --bind 0.0.0.0:8888 >/proc/1/fd/1 2>/proc/1/fd/2
+fi

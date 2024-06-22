@@ -17,14 +17,7 @@ def clickable_url_html(
     )
 
 
-class UserProxy(User):
-    class Meta:
-        proxy = True
-        app_label = "auth"
-        verbose_name = User._meta.verbose_name
-
-
-@register(UserProxy)
+@register(User)
 class UserAdmin(ModelAdmin):
     ordering = ["username"]
 
