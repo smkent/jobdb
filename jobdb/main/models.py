@@ -113,7 +113,9 @@ class Application(Model):
         blank=True,
         verbose_name="Bona Fide rating",
     )
-    applied: DateTimeField = DateTimeField(verbose_name="Date Applied")
+    applied: DateTimeField = DateTimeField(
+        auto_now_add=True, verbose_name="Date Applied"
+    )
     reported: DateTimeField = DateTimeField(
         null=True, blank=True, verbose_name="Date Reported"
     )
