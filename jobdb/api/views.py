@@ -1,5 +1,8 @@
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend  # type: ignore
+from drf_link_header_pagination import (  # type: ignore
+    LinkHeaderLimitOffsetPagination,
+)
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
@@ -13,6 +16,7 @@ class APIModelViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication, APIKeyAuthentication]
     filter_backends = [DjangoFilterBackend]
+    pagination_class = LinkHeaderLimitOffsetPagination
 
 
 class CompanyViewSet(APIModelViewSet):

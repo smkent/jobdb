@@ -557,6 +557,20 @@ coreapi = ["coreapi (>=2.0.0)"]
 markdown = ["types-Markdown (>=0.1.5)"]
 
 [[package]]
+name = "drf-link-header-pagination"
+version = "0.2.0"
+description = "Link Header Pagination for Django Rest Framework"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "drf_link_header_pagination-0.2.0-py3-none-any.whl", hash = "sha256:9890a871803395544c5a0ee0665fc2d2701fcdf151570ed15c8b8d873aefe27d"},
+    {file = "drf_link_header_pagination-0.2.0.tar.gz", hash = "sha256:19446c5716a8b857f5e0ecbba39a49508a8e748ef51a8cfd6bd706090e97060c"},
+]
+
+[package.dependencies]
+djangorestframework = ">=3.11"
+
+[[package]]
 name = "drf-spectacular"
 version = "0.27.2"
 description = "Sane and flexible OpenAPI 3 schema generation for Django REST framework"
@@ -1831,4 +1845,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "93239b8020fc260d3943e56cc1cb73bced2d555940152d11cdcb816659f8d68e"
+content-hash = "0e33a7fe1efd8e4a3ecadd1e0fd98b6eb91ee30a401e94d24721c295abf36706"
