@@ -25,6 +25,8 @@ django-extensions = "^3.2.3"
 psycopg2-binary = "^2.9.9"
 gunicorn = "^22.0.0"
 whitenoise = "^6.7.0"
+djangorestframework = "^3.15.2"
+djangorestframework-stubs = {extras = ["compatible-mypy"], version = "^3.15.0"}
 
 [tool.poetry.dev-dependencies]
 bandit = {extras = ["toml"], version = "*"}

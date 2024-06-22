@@ -502,6 +502,47 @@ django = "*"
 typing-extensions = "*"
 
 [[package]]
+name = "djangorestframework"
+version = "3.15.2"
+description = "Web APIs for Django, made easy."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "djangorestframework-3.15.2-py3-none-any.whl", hash = "sha256:2b8871b062ba1aefc2de01f773875441a961fefbf79f5eed1e32b2f096944b20"},
+    {file = "djangorestframework-3.15.2.tar.gz", hash = "sha256:36fe88cd2d6c6bec23dca9804bab2ba5517a8bb9d8f47ebc68981b56840107ad"},
+]
+
+[package.dependencies]
+django = ">=4.2"
+
+[[package]]
+name = "djangorestframework-stubs"
+version = "3.15.0"
+description = "PEP-484 stubs for django-rest-framework"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "djangorestframework_stubs-3.15.0-py3-none-any.whl", hash = "sha256:6c634f16fe1f9b1654cfd921eca64cd4188ce8534ab5e3ec7e44aaa0ca969d93"},
+    {file = "djangorestframework_stubs-3.15.0.tar.gz", hash = "sha256:f60ee1c80abb01a77acc0169969e07c45c2739ae64667b9a0dd4a2e32697dcab"},
+]
+
+[package.dependencies]
+django-stubs = [
+    {version = ">=5.0.0"},
+    {version = "*", extras = ["compatible-mypy"], optional = true, markers = "extra == \"compatible-mypy\""},
+]
+mypy = {version = ">=1.10.0,<1.11.0", optional = true, markers = "extra == \"compatible-mypy\""}
+requests = ">=2.0.0"
+types-PyYAML = ">=5.4.3"
+types-requests = ">=0.1.12"
+typing-extensions = ">=3.10.0"
+
+[package.extras]
+compatible-mypy = ["django-stubs[compatible-mypy]", "mypy (>=1.10.0,<1.11.0)"]
+coreapi = ["coreapi (>=2.0.0)"]
+markdown = ["types-Markdown (>=0.1.5)"]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.2.1"
 description = "Backport of PEP 654 (exception groups)"
@@ -1484,6 +1525,20 @@ files = [
 ]
 
 [[package]]
+name = "types-requests"
+version = "2.32.0.20240622"
+description = "Typing stubs for requests"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-requests-2.32.0.20240622.tar.gz", hash = "sha256:ed5e8a412fcc39159d6319385c009d642845f250c63902718f605cd90faade31"},
+    {file = "types_requests-2.32.0.20240622-py3-none-any.whl", hash = "sha256:97bac6b54b5bd4cf91d407e62f0932a74821bc2211f22116d9ee1dd643826caf"},
+]
+
+[package.dependencies]
+urllib3 = ">=2"
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1559,4 +1614,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1d3feab9930e4692da5076741e883d6bc1f64174d07b1a41be897804aa1fdf3e"
+content-hash = "a27ef1cbb72b734ec28bb2eff18f6d3bd4be5b4d0c89ad4b912eb8ac2ad0fc5f"
