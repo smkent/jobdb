@@ -33,14 +33,14 @@ ALLOWED_HOSTS: list[str] = []
 # Application definition
 
 INSTALLED_APPS = [
-    "jobdb.main.apps.AppConfig",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "jobdb.apps.AdminConfig",
+    "jobdb.main.apps.AppConfig",
 ]
 
 MIDDLEWARE = [
