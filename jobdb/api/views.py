@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -9,7 +10,7 @@ from .auth import APIKeyAuthentication
 
 class APIModelViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [APIKeyAuthentication]
+    authentication_classes = [SessionAuthentication, APIKeyAuthentication]
 
 
 class CompanyViewSet(APIModelViewSet):
