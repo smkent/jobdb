@@ -4,10 +4,12 @@ from rest_framework.viewsets import ModelViewSet
 
 from ..main.models import Application, Company, Posting
 from . import serializers
+from .auth import APIKeyAuthentication
 
 
 class APIModelViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [APIKeyAuthentication]
 
 
 class CompanyViewSet(APIModelViewSet):
