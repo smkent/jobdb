@@ -21,7 +21,10 @@ from django_extensions.db.models import TimeStampedModel  # type: ignore
 
 
 class User(AbstractUser):
-    pass
+    phone: CharField = CharField("Phone number", max_length=10, blank=True)
+    linkedin: URLField = URLField(
+        "LinkedIn Profile", max_length=2048, blank=True
+    )
 
 
 class APIKey(TimeStampedModel):
