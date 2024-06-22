@@ -13,5 +13,6 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", LogoutView.as_view()),
+    path("api/", include("jobdb.api.urls")),
     path("", include("jobdb.main.urls")),
 ]

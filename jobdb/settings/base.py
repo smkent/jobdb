@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "jobdb.apps.AdminConfig",
     "jobdb.main.apps.AppConfig",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -146,3 +147,14 @@ AUTH_USER_MODEL = "main.User"
 FORMS_URLFIELD_ASSUME_HTTPS = True
 
 LOGIN_REDIRECT_URL = "/"
+
+REST_FRAMEWORK = {
+    "URL_FIELD_NAME": "link",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated"
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "jobdb.api.auth.APIKeyAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+}

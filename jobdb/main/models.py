@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import binascii
+import os
+from typing import Any
+
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (
     CASCADE,
@@ -16,6 +22,26 @@ from django_extensions.db.models import TimeStampedModel  # type: ignore
 
 class User(AbstractUser):
     pass
+
+
+class APIKey(TimeStampedModel):
+    key: CharField = CharField("Key", max_length=40, primary_key=True)
+    user: ForeignKey = ForeignKey(User, on_delete=CASCADE)
+
+    def save(self, *args: Any, **kwargs: Any) -> APIKey:
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)  # type: ignore
+
+    @classmethod
+    def generate_key(cls) -> str:
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self) -> str:
+        return f"API Key for {self.user.username}: {self.key}"
+
+    class Meta:
+        verbose_name = "API Key"
 
 
 class Company(TimeStampedModel):

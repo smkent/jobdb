@@ -9,7 +9,7 @@ from django.http import HttpRequest
 from django.utils.html import format_html
 
 from ..admin import personal_admin_site
-from .models import Application, Company, Posting, User
+from .models import APIKey, Application, Company, Posting, User
 
 register_portal = partial(register, site=personal_admin_site)
 
@@ -25,6 +25,39 @@ def clickable_url_html(
 @register(User)
 class UserAdmin(BaseUserAdmin):
     ordering = ["username"]
+
+
+class APIKeyAdminForm(ModelForm):
+    class Meta:
+        model = APIKey
+        exclude = ["key"]
+
+
+@register(APIKey)
+class APIKeyAdmin(ModelAdmin):
+    ordering = ["user__username", "key", "-created"]
+    list_display = ["user", "key", "created"]
+    list_display_links = ["key"]
+    form = APIKeyAdminForm
+
+
+class APIKeyPortalAdminForm(APIKeyAdminForm):
+    current_user: User
+
+    class Meta(APIKeyAdminForm.Meta):
+        exclude = APIKeyAdminForm.Meta.exclude + ["user"]
+
+
+@register_portal(APIKey)
+class APIKeyPortalAdmin(ModelAdmin):
+    list_display = ["key", "created"]
+    form = APIKeyPortalAdminForm
+
+    def save_model(
+        self, request: HttpRequest, obj: APIKey, *args: Any, **kwargs: Any
+    ) -> None:
+        obj.user = request.user
+        super().save_model(request, obj, *args, **kwargs)
 
 
 @register(Company)
