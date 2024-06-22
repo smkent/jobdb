@@ -58,7 +58,7 @@ ROOT_URLCONF = "jobdb.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "jobdb" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -141,3 +141,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "main.User"
 FORMS_URLFIELD_ASSUME_HTTPS = True
+
+LOGIN_REDIRECT_URL = "/"
