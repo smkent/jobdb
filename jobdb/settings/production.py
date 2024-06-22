@@ -7,6 +7,8 @@ from .base import BASE_DIR
 
 DEFAULT_LOGGING["handlers"]["console"]["filters"] = []
 
+CSRF_TRUSTED_ORIGINS = [os.environ.get("CSRF_TRUSTED_ORIGIN")]
+
 ALLOWED_HOSTS = ["*"]
 DEBUG = False
 
