@@ -13,28 +13,16 @@ class APIModelViewSet(ModelViewSet):
 
 
 class CompanyViewSet(APIModelViewSet):
-    """
-    API endpoint that allows companies to be viewed or edited.
-    """
-
     queryset = Company.objects.all().order_by("name")
     serializer_class = serializers.CompanySerializer
 
 
 class PostingViewSet(APIModelViewSet):
-    """
-    API endpoint that allows companies to be viewed or edited.
-    """
-
     queryset = Posting.objects.all().order_by("company__name", "title", "url")
     serializer_class = serializers.PostingSerializer
 
 
 class ApplicationViewSet(APIModelViewSet):
-    """
-    API endpoint that allows companies to be viewed or edited.
-    """
-
     queryset = Application.objects.all().order_by(
         "posting__company__name", "posting__title", "posting__url"
     )
