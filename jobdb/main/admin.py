@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.contrib.admin import ModelAdmin, display, register
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 
 from ..admin import personal_admin_site
@@ -18,7 +19,7 @@ def clickable_url_html(
 
 
 @register(User)
-class UserAdmin(ModelAdmin):
+class UserAdmin(BaseUserAdmin):
     ordering = ["username"]
 
 
