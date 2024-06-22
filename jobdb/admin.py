@@ -1,4 +1,5 @@
 from django.contrib.admin import AdminSite as BaseAdminSite
+from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpRequest
 
 
@@ -12,6 +13,8 @@ class PersonalAdminSite(BaseAdminSite):
     site_title = "Autojob portal"
     site_url = None
     index_title = "Home"
+
+    login_form = AuthenticationForm
 
     def has_permission(self, request: HttpRequest) -> bool:
         return bool(request.user.is_active)
