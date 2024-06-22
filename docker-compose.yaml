@@ -1,6 +1,29 @@
-version: "3.7"
+networks:
+  local:
+    external: false
 
 services:
   jobdb:
-    image: ghcr.io/smkent/jobdb:latest
+    build: .
+    depends_on:
+    - db
+    networks:
+    - local
+    ports:
+    - 8888:8888
     restart: unless-stopped
+
+  db:
+    image: postgres:13
+    environment:
+    - POSTGRES_USER=jobdb
+    - POSTGRES_PASSWORD=jobdb
+    - POSTGRES_DB=jobdb
+    networks:
+    - local
+    restart: unless-stopped
+    volumes:
+    - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

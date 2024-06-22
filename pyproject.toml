@@ -22,6 +22,7 @@ python = "^3.10"
 django = "^5.0.6"
 django-stubs = {extras = ["compatible-mypy"], version = "^5.0.2"}
 django-extensions = "^3.2.3"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.dev-dependencies]
 bandit = {extras = ["toml"], version = "*"}
