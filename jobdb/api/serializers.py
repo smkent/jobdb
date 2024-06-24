@@ -1,3 +1,5 @@
+from typing import Any
+
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from ..main.models import Application, Company, Posting
@@ -49,3 +51,7 @@ class ApplicationSerializer(HyperlinkedModelSerializer):
             "reported",
             "notes",
         ]
+
+    def create(self, validated_data: dict[str, Any]) -> Application:
+        validated_data["user"] = self.context["request"].user
+        return super().create(validated_data)  # type: ignore
