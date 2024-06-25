@@ -19,6 +19,8 @@ from django.db.models import (
 )
 from django_extensions.db.models import TimeStampedModel  # type: ignore
 
+from .fields import URLArray
+
 
 class User(AbstractUser):
     phone: CharField = CharField("Phone number", max_length=10, blank=True)
@@ -68,6 +70,12 @@ class Company(TimeStampedModel):
         verbose_name="Careers URL",
         help_text="Careers page URL",
     )
+    careers_urls: URLArray = URLArray(
+        null=True,
+        blank=True,
+        verbose_name="Additional Careers URLs",
+        help_text="Additional careers page URLs",
+    )
     employees_est: CharField = CharField(
         max_length=100, verbose_name="Estimated number of employees"
     )
@@ -96,6 +104,12 @@ class Posting(TimeStampedModel):
         unique=True,
         verbose_name="Posting URL",
         help_text="Job posting URL",
+    )
+    job_board_urls: URLArray = URLArray(
+        null=True,
+        blank=True,
+        verbose_name="Job Board URLs",
+        help_text="Additional posting URLs that link to the main posting URL",
     )
     title: CharField = CharField(max_length=500, verbose_name="Role Title")
     closed: DateTimeField = DateTimeField(
