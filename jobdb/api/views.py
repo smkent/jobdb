@@ -13,11 +13,16 @@ from . import serializers
 from .auth import APIKeyAuthentication
 
 
+class APIPagination(LinkHeaderLimitOffsetPagination):
+    default_limit = 10
+    max_limit = 100
+
+
 class APIViewSet(GenericViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication, APIKeyAuthentication]
     filter_backends = [DjangoFilterBackend]
-    pagination_class = LinkHeaderLimitOffsetPagination
+    pagination_class = APIPagination
 
 
 class BaseCompanyViewSet(APIViewSet):
