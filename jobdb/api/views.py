@@ -1,6 +1,8 @@
 from typing import Any
 
 from django.db.models import QuerySet
+from django.http.response import Http404
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend  # type: ignore
 from drf_link_header_pagination import (  # type: ignore
     LinkHeaderLimitOffsetPagination,
@@ -57,6 +59,13 @@ class PostingViewSet(BasePostingViewSet, ModelViewSet):
 class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
     lookup_field = "url"
     lookup_value_regex = ".*"
+
+    def get_object(self) -> Posting:
+        try:
+            return super().get_object()  # type: ignore
+        except Http404:
+            qs = self.get_queryset()
+            return qs.by_url(self.kwargs["url"]).get()  # type: ignore
 
 
 class BaseApplicationViewSet(APIViewSet):

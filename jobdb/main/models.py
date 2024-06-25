@@ -5,6 +5,8 @@ import os
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.models import (
     CASCADE,
     CharField,
@@ -12,7 +14,10 @@ from django.db.models import (
     ForeignKey,
     IntegerChoices,
     IntegerField,
+    Manager,
     Model,
+    Q,
+    QuerySet,
     TextField,
     UniqueConstraint,
     URLField,
@@ -97,6 +102,18 @@ class Company(TimeStampedModel):
         verbose_name_plural = "Companies"
 
 
+class PostingQuerySet(QuerySet):
+    def _by_url_filter(self, url: str) -> Q:
+        if connection.vendor == "sqlite":
+            q_jb_urls = Q(job_board_urls__icontains=url)
+        else:
+            q_jb_urls = Q(job_board_urls__contains=url)
+        return Q(url=url) | q_jb_urls
+
+    def by_url(self, url: str) -> QuerySet:
+        return self.filter(self._by_url_filter(url))
+
+
 class Posting(TimeStampedModel):
     company: ForeignKey = ForeignKey(Company, on_delete=CASCADE)
     url: URLField = URLField(
@@ -135,6 +152,19 @@ class Posting(TimeStampedModel):
     def __str__(self) -> str:
         closed = " (closed)" if self.closed else ""
         return f"{self.company.name} • {self.title} • {self.url}{closed}"
+
+    def _check_duplicate_urls(self) -> None:
+        for url in [self.url] + (self.job_board_urls or []):
+            if self.__class__.objects.by_url(url).count() > 0:  # type: ignore
+                raise ValidationError(
+                    f"A posting containing URL {url} already exists"
+                )
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self._check_duplicate_urls()
+        super().save(*args, **kwargs)
+
+    objects = PostingQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Job posting"
