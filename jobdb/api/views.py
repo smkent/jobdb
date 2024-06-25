@@ -1,8 +1,11 @@
+from typing import Any
+
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend  # type: ignore
 from drf_link_header_pagination import (  # type: ignore
     LinkHeaderLimitOffsetPagination,
 )
+from drf_problems.exceptions import exception_handler  # type: ignore
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
@@ -23,6 +26,9 @@ class APIViewSet(GenericViewSet):
     authentication_classes = [SessionAuthentication, APIKeyAuthentication]
     filter_backends = [DjangoFilterBackend]
     pagination_class = APIPagination
+
+    def get_exception_handler(self) -> Any:
+        return exception_handler
 
 
 class BaseCompanyViewSet(APIViewSet):

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "jobdb.apps.AdminConfig",
     "jobdb.main.apps.AppConfig",
     "rest_framework",
+    "drf_problems",
     "drf_spectacular",
 ]
 
