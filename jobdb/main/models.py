@@ -14,7 +14,6 @@ from django.db.models import (
     ForeignKey,
     IntegerChoices,
     IntegerField,
-    Manager,
     Model,
     Q,
     QuerySet,
