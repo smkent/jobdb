@@ -24,7 +24,7 @@ from django.db.models import (
 )
 from django_extensions.db.models import TimeStampedModel  # type: ignore
 
-from .fields import URLArray
+from .fields import AppliedDateField, URLArray
 
 
 class User(AbstractUser):
@@ -187,9 +187,7 @@ class Application(Model):
         blank=True,
         verbose_name="Bona Fide rating",
     )
-    applied: DateTimeField = DateTimeField(
-        auto_now_add=True, verbose_name="Date Applied"
-    )
+    applied: AppliedDateField = AppliedDateField(verbose_name="Date Applied")
     reported: DateTimeField = DateTimeField(
         null=True, blank=True, verbose_name="Date Reported"
     )

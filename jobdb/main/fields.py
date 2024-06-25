@@ -4,8 +4,9 @@ from typing import Any
 
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.db.models import JSONField, Model
+from django.db.models import DateTimeField, JSONField, Model
 from django.forms.fields import URLField as URLFormField
+from django.utils import timezone
 
 
 class URLArray(JSONField):
@@ -54,3 +55,17 @@ class URLArray(JSONField):
             uf = URLFormField()
             value = [uf.to_python(v) for v in value if isinstance(v, str)]
         return value
+
+
+class AppliedDateField(DateTimeField):
+    def __init__(self, *args: Any, **kwargs: Any):
+        kwargs.setdefault("blank", True)
+        super().__init__(*args, **kwargs)
+
+    def pre_save(self, model_instance: Model, add: bool) -> Any:
+        print("ADF", model_instance, add)
+        if add or not getattr(model_instance, self.attname, None):
+            value = timezone.now()
+            setattr(model_instance, self.attname, value)
+            return value
+        return super().pre_save(model_instance, add)
