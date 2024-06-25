@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db.models import (
     CASCADE,
+    PROTECT,
     CharField,
     DateTimeField,
     ForeignKey,
@@ -114,7 +115,7 @@ class PostingQuerySet(QuerySet):
 
 
 class Posting(TimeStampedModel):
-    company: ForeignKey = ForeignKey(Company, on_delete=CASCADE)
+    company: ForeignKey = ForeignKey(Company, on_delete=PROTECT)
     url: URLField = URLField(
         max_length=2048,
         unique=True,
@@ -177,8 +178,8 @@ class BonaFide(IntegerChoices):
 
 
 class Application(Model):
-    user: ForeignKey = ForeignKey(User, on_delete=CASCADE)
-    posting: ForeignKey = ForeignKey(Posting, on_delete=CASCADE)
+    user: ForeignKey = ForeignKey(User, on_delete=PROTECT)
+    posting: ForeignKey = ForeignKey(Posting, on_delete=PROTECT)
     bona_fide: IntegerField = IntegerField(
         choices=BonaFide.choices,
         null=True,
