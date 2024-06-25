@@ -37,6 +37,7 @@ class User(AbstractUser):
 class APIKey(TimeStampedModel):
     key: CharField = CharField("Key", max_length=40, primary_key=True)
     user: ForeignKey = ForeignKey(User, on_delete=CASCADE)
+    comment: CharField = CharField("Comment", max_length=250, blank=True)
 
     def save(self, *args: Any, **kwargs: Any) -> APIKey:
         if not self.key:

@@ -4,7 +4,6 @@ from typing import Any
 from django.contrib.admin import ModelAdmin, display, register
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db.models import QuerySet
-from django.forms import ModelForm
 from django.http import HttpRequest
 from django.utils.html import format_html
 
@@ -27,37 +26,35 @@ class UserAdmin(BaseUserAdmin):
     ordering = ["username"]
 
 
-class APIKeyAdminForm(ModelForm):
-    class Meta:
-        model = APIKey
-        exclude = ["key"]
-
-
 @register(APIKey)
 class APIKeyAdmin(ModelAdmin):
-    ordering = ["user__username", "key", "-created"]
-    list_display = ["user", "key", "created"]
+    ordering = ["user__username", "created", "key"]
+    list_display = ["user", "key", "comment", "created"]
     list_display_links = ["key"]
-    form = APIKeyAdminForm
+    exclude = ["key"]
 
-
-class APIKeyPortalAdminForm(APIKeyAdminForm):
-    current_user: User
-
-    class Meta(APIKeyAdminForm.Meta):
-        exclude = APIKeyAdminForm.Meta.exclude + ["user"]
+    def get_readonly_fields(
+        self, request: HttpRequest, obj: APIKey | None = None
+    ) -> list[str]:
+        return ["comment", "user"] if obj else []
 
 
 @register_portal(APIKey)
 class APIKeyPortalAdmin(ModelAdmin):
-    list_display = ["key", "created"]
-    form = APIKeyPortalAdminForm
+    ordering = ["user__username", "created", "key"]
+    list_display = ["key", "comment", "created"]
+    exclude = ["user", "key"]
 
     def save_model(
         self, request: HttpRequest, obj: APIKey, *args: Any, **kwargs: Any
     ) -> None:
         obj.user = request.user
         super().save_model(request, obj, *args, **kwargs)
+
+    def get_readonly_fields(
+        self, request: HttpRequest, obj: APIKey | None = None
+    ) -> list[str]:
+        return ["comment"] if obj else []
 
 
 @register(Company)
@@ -124,17 +121,9 @@ class ApplicationAdminBase(ModelAdmin):
         return f"{obj.posting.company.name} • {obj.posting.title}"
 
 
-class ApplicationPortalAdminForm(ModelForm):
-    current_user: User
-
-    class Meta:
-        model = Application
-        exclude = ["user"]
-
-
 @register_portal(Application)
 class ApplicationPortalAdmin(ApplicationAdminBase):
-    form = ApplicationPortalAdminForm
+    exclude = ["user"]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         return super().get_queryset(request).filter(user=request.user)
