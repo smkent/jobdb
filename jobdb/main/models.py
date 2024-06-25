@@ -5,6 +5,8 @@ import os
 from typing import Any
 
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.models import (
     CASCADE,
     CharField,
@@ -13,11 +15,15 @@ from django.db.models import (
     IntegerChoices,
     IntegerField,
     Model,
+    Q,
+    QuerySet,
     TextField,
     UniqueConstraint,
     URLField,
 )
 from django_extensions.db.models import TimeStampedModel  # type: ignore
+
+from .fields import URLArray
 
 
 class User(AbstractUser):
@@ -68,6 +74,12 @@ class Company(TimeStampedModel):
         verbose_name="Careers URL",
         help_text="Careers page URL",
     )
+    careers_urls: URLArray = URLArray(
+        null=True,
+        blank=True,
+        verbose_name="Additional Careers URLs",
+        help_text="Additional careers page URLs",
+    )
     employees_est: CharField = CharField(
         max_length=100, verbose_name="Estimated number of employees"
     )
@@ -89,6 +101,18 @@ class Company(TimeStampedModel):
         verbose_name_plural = "Companies"
 
 
+class PostingQuerySet(QuerySet):
+    def _by_url_filter(self, url: str) -> Q:
+        if connection.vendor == "sqlite":
+            q_jb_urls = Q(job_board_urls__icontains=url)
+        else:
+            q_jb_urls = Q(job_board_urls__contains=url)
+        return Q(url=url) | q_jb_urls
+
+    def by_url(self, url: str) -> QuerySet:
+        return self.filter(self._by_url_filter(url))
+
+
 class Posting(TimeStampedModel):
     company: ForeignKey = ForeignKey(Company, on_delete=CASCADE)
     url: URLField = URLField(
@@ -96,6 +120,12 @@ class Posting(TimeStampedModel):
         unique=True,
         verbose_name="Posting URL",
         help_text="Job posting URL",
+    )
+    job_board_urls: URLArray = URLArray(
+        null=True,
+        blank=True,
+        verbose_name="Job Board URLs",
+        help_text="Additional posting URLs that link to the main posting URL",
     )
     title: CharField = CharField(max_length=500, verbose_name="Role Title")
     closed: DateTimeField = DateTimeField(
@@ -121,6 +151,19 @@ class Posting(TimeStampedModel):
     def __str__(self) -> str:
         closed = " (closed)" if self.closed else ""
         return f"{self.company.name} • {self.title} • {self.url}{closed}"
+
+    def _check_duplicate_urls(self) -> None:
+        for url in [self.url] + (self.job_board_urls or []):
+            if self.__class__.objects.by_url(url).count() > 0:  # type: ignore
+                raise ValidationError(
+                    f"A posting containing URL {url} already exists"
+                )
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self._check_duplicate_urls()
+        super().save(*args, **kwargs)
+
+    objects = PostingQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Job posting"
