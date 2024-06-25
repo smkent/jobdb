@@ -20,7 +20,7 @@ from .auth import APIKeyAuthentication
 
 class APIPagination(LinkHeaderLimitOffsetPagination):
     default_limit = 10
-    max_limit = 100
+    max_limit = 1000
 
 
 class APIViewSet(GenericViewSet):
