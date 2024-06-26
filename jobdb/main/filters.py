@@ -20,4 +20,14 @@ class CompanyFilter(django_filters.FilterSet):
         if value.replace(".", "", 1).isdigit():
             value = Decimal(value)
             return queryset.filter(Q(pk=value))
-        return queryset.filter(Q(name__icontains=value))
+        condition = Q()
+        for field in [
+            "name",
+            "hq",
+            "url",
+            "careers_url",
+            "how_found",
+            "notes",
+        ]:
+            condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
+        return queryset.filter(condition)

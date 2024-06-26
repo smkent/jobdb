@@ -7,3 +7,19 @@ class CompanyHTMxTable(Table):
     class Meta:
         model = Company
         template_name = "main/bootstrap_htmx.html"
+        sequence = [
+            "name",
+            "hq",
+            "url",
+            "careers_url",
+            "employees_est",
+            "how_found",
+            "notes",
+        ]
+        exclude = [
+            "created",
+            "careers_urls",
+            "id",
+            "modified",
+            "employees_est_source",
+        ]
