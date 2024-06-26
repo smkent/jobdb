@@ -49,3 +49,8 @@ repos:
       language: python
       types_or: [python, pyi]
       entry: env -u VIRTUAL_ENV poetry run mypy
+  - repo: https://github.com/rtts/djhtml
+    rev: '3.0.6'  # replace with the latest tag on GitHub
+    hooks:
+    - id: djhtml
+      args: ["--tabwidth", "2"]
