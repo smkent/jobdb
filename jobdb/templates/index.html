@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if request.user.is_authenticated %}
 <h1>Welcome, <b>{{request.user}}</b></h1>
 <form action="{% url 'logout' %}" method="post">
 <input type="hidden" name="next" value="{{ request.path }}" />
@@ -9,10 +8,14 @@
   <button type="submit">Log Out</button>
 </form>
 <hr />
+<a href="{% url 'personal:index' %}">Portal</a><br />
+{% if request.user.is_staff %}
+<a href="{% url 'admin:index' %}">Admin</a><br />
+{% endif %}
+<hr />
 <h2>Statistics</h2>
 Total companies: {{ company.count }}<br />
 Total postings: {{ posting.count }}<br />
 Total applications: {{ application.count }}<br />
 Your applications: {{ your_apps.count }}<br />
-{% endif %}
 {% endblock %}
