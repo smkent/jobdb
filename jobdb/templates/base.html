@@ -1,2 +1,16 @@
-{% block content %}
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+  {% block header %}
+    <head>
+      <title>{{ title }}</title>
+      <link rel="shortcut icon" type="image/svg+xml"
+            href="{% static 'main/briefcase.svg' %}" />
+    </head>
+  {% endblock %}
+
+  <body>
+    {% block content %}
+    {% endblock %}
+  </body>
+</html>

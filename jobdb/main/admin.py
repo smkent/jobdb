@@ -1,8 +1,11 @@
 from functools import partial
 from typing import Any
 
-from django.contrib.admin import ModelAdmin, display, register
+from django.conf import settings
+from django.contrib.admin import ModelAdmin, display, register, site
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.html import format_html
@@ -11,6 +14,14 @@ from ..admin import personal_admin_site
 from .models import APIKey, Application, Company, Posting, User
 
 register_portal = partial(register, site=personal_admin_site)
+
+
+site.login = staff_member_required(  # type: ignore
+    site.login, login_url=settings.LOGIN_URL
+)
+personal_admin_site.login = login_required(  # type: ignore
+    personal_admin_site.login
+)
 
 
 def clickable_url_html(

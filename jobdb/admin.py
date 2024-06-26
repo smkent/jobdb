@@ -11,7 +11,6 @@ class AdminSite(BaseAdminSite):
 class PersonalAdminSite(BaseAdminSite):
     site_header = "Autojob"
     site_title = "Autojob portal"
-    site_url = None
     index_title = "Home"
 
     login_form = AuthenticationForm
