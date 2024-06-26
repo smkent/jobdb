@@ -10,7 +10,7 @@ def index(request: HttpRequest) -> HttpResponse:
     your_apps = Application.objects.filter(user=request.user)
     return render(
         request,
-        "index.html",
+        "main/index.html",
         {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
