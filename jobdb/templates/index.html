@@ -12,6 +12,8 @@
 {% if request.user.is_staff %}
 <a href="{% url 'admin:index' %}">Admin</a><br />
 {% endif %}
+<br />
+<a href="{% url 'api-root' %}">API</a><br />
 <hr />
 <h2>Statistics</h2>
 Total companies: {{ company.count }}<br />
