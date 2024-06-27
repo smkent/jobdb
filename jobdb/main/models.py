@@ -100,6 +100,15 @@ class Company(TimeStampedModel):
     def __str__(self) -> str:
         return f"{self.name}"
 
+    @property
+    def url_text(self) -> str:
+        url_parts = urlparse(self.url or "")
+        if not url_parts.path.rstrip("/") and not url_parts.query:
+            return url_parts.netloc
+        return (
+            (self.url or "").removeprefix("https://").removeprefix("http://")
+        )
+
     class Meta:
         verbose_name_plural = "Companies"
 

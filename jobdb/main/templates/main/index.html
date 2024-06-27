@@ -1,14 +1,15 @@
 {% extends "main/base.html" %}
 
 {% block content %}
-  <h2>Statistics</h2>
+  <h2>Summary</h2>
   <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a><br />
   Companies with available postings: {{ posting_queue_company_count }}<br />
   <br />
-  Your applications: {{ your_apps.count }}<br />
-  Reported applications: {{ reported_apps.count }}<br />
+  <a href="{% url 'application_htmx' %}">Your applications: <b>{{ your_apps.count }}</b></a>
+  {% if unreported_apps_count %}
+    (<a href="{% url 'application_htmx' %}?reported=false"><b>{{ unreported_apps_count }}</b> unreported</a>)
+  {% endif %}
   <br />
-  Total companies: {{ company.count }}<br />
-  Total postings: {{ posting.count }}<br />
-  Total applications: {{ application.count }}<br />
+  <a href="{% url 'company_htmx' %}">Total companies: {{ company.count }}</a><br />
+  <a href="{% url 'posting_htmx' %}">Total postings: {{ posting.count }}</a><br />
 {% endblock %}
