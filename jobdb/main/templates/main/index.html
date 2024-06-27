@@ -1,6 +1,9 @@
 {% extends "main/base.html" %}
 
 {% block content %}
+  <h2>Profile</h2>
+  <a href="{% url 'api-me' %}">User profile</a><br />
+  <br />
   <h2>Summary</h2>
   <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a><br />
   Companies with available postings: {{ posting_queue_company_count }}<br />

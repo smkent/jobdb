@@ -30,6 +30,7 @@ urlpatterns = [
         views.MeView.as_view(
             {"get": "retrieve", "put": "update", "patch": "partial_update"}
         ),
+        name="api-me",
     ),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
