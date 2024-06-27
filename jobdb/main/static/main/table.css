@@ -9,6 +9,12 @@
     float: right;
 }
 
+.table-container table td {
+    width: 5%;
+    max-width: 5%;
+}
+
+
 .table-container table td:nth-child(1) {
     width: 5%;
 }
@@ -103,4 +109,14 @@
 
 div.page-link {
     cursor: pointer;
+}
+
+div.table-container table.table {
+    table-layout: fixed;
+}
+
+div.table-container table.table td {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
