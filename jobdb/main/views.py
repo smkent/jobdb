@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
+from django_tables2.export import views as export_views  # type: ignore
 
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
 from .models import Application, Company, Posting, User
@@ -18,6 +19,15 @@ from .tables import (
     PostingHTMxTable,
     QueueHTMxTable,
 )
+
+
+class ExportMixin(export_views.ExportMixin):
+    def get_export_filename(self, export_format: str) -> str:
+        if hasattr(self, "get_export_name"):
+            export_name = self.get_export_name()
+        else:
+            export_name = self.export_name
+        return f"{export_name}.{export_format}"
 
 
 @login_required
@@ -48,7 +58,9 @@ def index(request: HttpRequest) -> HttpResponse:
     )
 
 
-class BaseHTMxTableView(LoginRequiredMixin, SingleTableMixin, FilterView):
+class BaseHTMxTableView(
+    LoginRequiredMixin, ExportMixin, SingleTableMixin, FilterView
+):
     template_table_title = "Untitled table"
     template_table_htmx_route = ""
     paginate_by = 15
@@ -71,6 +83,7 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     table_class = CompanyHTMxTable
     filterset_class = CompanyFilter
     queryset = Company.objects.all()
+    export_name = "companies"
 
 
 class QueueHTMxTableView(BaseHTMxTableView):
@@ -78,6 +91,7 @@ class QueueHTMxTableView(BaseHTMxTableView):
     template_table_htmx_route = "queue_htmx"
     table_class = QueueHTMxTable
     filterset_class = PostingFilter
+    export_name = "postings_queue"
 
     def get_queryset(self) -> QuerySet:
         return posting_queue_set(self.request.user)
@@ -88,6 +102,7 @@ class PostingHTMxTableView(QueueHTMxTableView):
     template_table_htmx_route = "posting_htmx"
     table_class = PostingHTMxTable
     filterset_class = PostingFilter
+    export_name = "postings"
 
     def get_queryset(self) -> QuerySet:
         return Posting.objects.annotate(
@@ -115,6 +130,14 @@ class ApplicationHTMxTableView(BaseHTMxTableView):
     template_table_htmx_route = "application_htmx"
     table_class = ApplicationHTMxTable
     filterset_class = ApplicationFilter
+
+    def get_export_name(self) -> str:
+        base_name = "applications"
+        if (
+            reported := self.filterset.form.cleaned_data.get("reported")
+        ) is not None:
+            return base_name + "-" + ("reported" if reported else "unreported")
+        return base_name
 
     def get_queryset(self) -> QuerySet:
         return Application.objects.filter(user=self.request.user).order_by(
