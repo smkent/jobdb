@@ -8,7 +8,7 @@
   Your applications: {{ your_apps.count }}<br />
   Reported applications: {{ reported_apps.count }}<br />
   <br />
-  Total companies: {{ company.count }}<br />
+  <a href="{% url 'company_htmx' %}">Total companies: {{ company.count }}</a><br />
   Total postings: {{ posting.count }}<br />
   Total applications: {{ application.count }}<br />
 {% endblock %}

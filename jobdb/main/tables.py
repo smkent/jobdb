@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from django_tables2 import Column  # type: ignore
 from django_tables2 import Table
 
-from .models import Posting
+from .models import Company, Posting
 
 
 class QueueHTMxTable(Table):
@@ -16,18 +16,8 @@ class QueueHTMxTable(Table):
     class Meta:
         model = Posting
         template_name = "main/bootstrap_htmx.html"
-        sequence = [
-            "company__name",
-            "url",
-            "title",
-            "notes",
-        ]
-        fields = [
-            "company__name",
-            "url",
-            "title",
-            "notes",
-        ]
+        sequence = ["company__name", "url", "title", "notes"]
+        fields = ["company__name", "url", "title", "notes"]
 
     def render_url(self, value: str, record: Any) -> str:
         return format_html(f'<a href="{value}">{record.url_text}</a>')
@@ -40,4 +30,27 @@ class QueueHTMxTable(Table):
         portal_url = reverse(
             "personal:main_company_change", args=(record.company.pk,)
         )
+        return format_html(f'<a href="{portal_url}">{value}</a>')
+
+
+class CompanyHTMxTable(Table):
+    name = Column(attrs={"th": {"style": "width: 200px;"}})
+    hq = Column(attrs={"th": {"style": "width: 200px;"}})
+    url = Column(attrs={"th": {"style": "width: 200px;"}})
+    employees_est = Column(
+        verbose_name="Est. # employees",
+        attrs={"th": {"style": "width: 200px;"}},
+    )
+
+    class Meta:
+        model = Company
+        template_name = "main/bootstrap_htmx.html"
+        sequence = ["name", "hq", "url", "employees_est", "notes"]
+        fields = ["name", "hq", "url", "employees_est", "notes"]
+
+    def render_url(self, value: str, record: Any) -> str:
+        return format_html(f'<a href="{value}">{record.url_text}</a>')
+
+    def render_name(self, value: str, record: Any) -> str:
+        portal_url = reverse("personal:main_company_change", args=(record.pk,))
         return format_html(f'<a href="{portal_url}">{value}</a>')

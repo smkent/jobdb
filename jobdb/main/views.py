@@ -9,10 +9,10 @@ from django.urls import reverse
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 
-from .filters import QueueFilter
+from .filters import CompanyFilter, QueueFilter
 from .models import Application, Company, Posting, User
 from .query import posting_queue_set
-from .tables import QueueHTMxTable
+from .tables import CompanyHTMxTable, QueueHTMxTable
 
 
 @login_required
@@ -65,3 +65,11 @@ class QueueHTMxTableView(BaseHTMxTableView):
 
     def get_queryset(self) -> QuerySet:
         return posting_queue_set(self.request.user)
+
+
+class CompanyHTMxTableView(BaseHTMxTableView):
+    template_table_title = "All companies"
+    template_table_htmx_route = "company_htmx"
+    table_class = CompanyHTMxTable
+    filterset_class = CompanyFilter
+    queryset = Company.objects.all()
