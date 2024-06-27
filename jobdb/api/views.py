@@ -9,7 +9,7 @@ from drf_link_header_pagination import (  # type: ignore
 )
 from drf_problems.exceptions import exception_handler  # type: ignore
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.mixins import RetrieveModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -69,8 +69,9 @@ class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
             return get_object_or_404(qs)  # type: ignore
 
 
-class PostingQueueViewSet(BasePostingViewSet, ModelViewSet):
+class PostingQueueViewSet(BasePostingViewSet, ListModelMixin):
     filterset_class = PostingFilter
+    serializer_class = serializers.PostingSerializer
 
     def get_queryset(self) -> QuerySet:
         assert isinstance(self.request.user, User)
