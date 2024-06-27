@@ -1,10 +1,22 @@
 from django.db.models import QuerySet
-from django_filters import BooleanFilter, CharFilter, FilterSet  # type: ignore
+from django_filters import (  # type: ignore
+    BooleanFilter,
+    CharFilter,
+    FilterSet,
+    OrderingFilter,
+)
 
 from ..main.models import Application, Company, Posting
 
 
 class CompanyFilter(FilterSet):
+    o = OrderingFilter(
+        fields=(
+            ("name", "name"),
+            ("posting_count", "num_postings"),
+        )
+    )
+
     class Meta:
         model = Company
         fields = ["name"]

@@ -4,12 +4,15 @@ from rest_framework.serializers import (
     CharField,
     HyperlinkedModelSerializer,
     HyperlinkedRelatedField,
+    IntegerField,
 )
 
 from ..main.models import Application, Company, Posting
 
 
 class CompanySerializer(HyperlinkedModelSerializer):
+    num_postings = IntegerField(source="posting_count", read_only=True)
+
     class Meta:
         model = Company
         fields = [
@@ -20,6 +23,7 @@ class CompanySerializer(HyperlinkedModelSerializer):
             "careers_url",
             "careers_urls",
             "hq",
+            "num_postings",
             "employees_est",
             "employees_est_source",
             "how_found",

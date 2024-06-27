@@ -12,7 +12,7 @@ from django_tables2.export import views as export_views  # type: ignore
 
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
 from .models import Application, Company, Posting, User
-from .query import posting_queue_set
+from .query import companies_with_postings_count, posting_queue_set
 from .tables import (
     ApplicationHTMxTable,
     CompanyHTMxTable,
@@ -82,7 +82,7 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     template_table_htmx_route = "company_htmx"
     table_class = CompanyHTMxTable
     filterset_class = CompanyFilter
-    queryset = Company.objects.all()
+    queryset = companies_with_postings_count()
     export_name = "companies"
 
 

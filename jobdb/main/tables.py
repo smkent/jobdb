@@ -22,6 +22,9 @@ class DateTimeColumn(BaseDateTimeColumn):
 class CompanyHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
     hq = Column(attrs={"th": {"style": "width: 200px;"}})
+    posting_count = Column(
+        verbose_name="Postings", attrs={"th": {"style": "width: 120px;"}}
+    )
     url = Column(attrs={"th": {"style": "width: 200px;"}})
     careers_urls = Column(
         verbose_name="Careers URLs",
@@ -45,12 +48,21 @@ class CompanyHTMxTable(Table):
             "careers_url",
             "careers_urls",
             "hq",
+            "posting_count",
             "employees_est",
             "employees_est_source",
             "how_found",
             "notes",
         ]
-        fields = ["name", "url", "careers_url", "hq", "employees_est", "notes"]
+        fields = [
+            "name",
+            "url",
+            "careers_url",
+            "hq",
+            "posting_count",
+            "employees_est",
+            "notes",
+        ]
 
     def render_url(self, value: str, record: Any) -> str:
         return format_html(
