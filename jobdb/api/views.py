@@ -13,7 +13,8 @@ from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from ..main.models import Application, Company, Posting
+from ..main.models import Application, Company, Posting, User
+from ..main.query import posting_queue_set
 from . import serializers
 from .auth import APIKeyAuthentication
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
@@ -66,6 +67,14 @@ class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
         except Http404:
             qs = self.get_queryset().by_url(self.kwargs["url"])  # type: ignore
             return get_object_or_404(qs)  # type: ignore
+
+
+class PostingQueueViewSet(BasePostingViewSet, ModelViewSet):
+    filterset_class = PostingFilter
+
+    def get_queryset(self) -> QuerySet:
+        assert isinstance(self.request.user, User)
+        return posting_queue_set(self.request.user)
 
 
 class BaseApplicationViewSet(APIViewSet):

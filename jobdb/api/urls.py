@@ -14,6 +14,7 @@ router.register(
     r"companies/by_name", views.CompanyByNameViewSet, "company-by-name"
 )
 router.register(r"postings", views.PostingViewSet)
+router.register(r"queue", views.PostingQueueViewSet, "posting-queue")
 router.register(
     r"postings/by_url", views.PostingByURLViewSet, "posting-by-url"
 )

@@ -1,6 +1,10 @@
 from typing import Any
 
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import (
+    CharField,
+    HyperlinkedModelSerializer,
+    HyperlinkedRelatedField,
+)
 
 from ..main.models import Application, Company, Posting
 
@@ -24,12 +28,15 @@ class CompanySerializer(HyperlinkedModelSerializer):
 
 
 class PostingSerializer(HyperlinkedModelSerializer):
+    company_name = CharField(source="company.name", read_only=True)
+
     class Meta:
         model = Posting
         fields = [
             "pk",
             "link",
             "company",
+            "company_name",
             "title",
             "url",
             "job_board_urls",
@@ -42,12 +49,21 @@ class PostingSerializer(HyperlinkedModelSerializer):
 
 
 class ApplicationSerializer(HyperlinkedModelSerializer):
+    company: HyperlinkedRelatedField = HyperlinkedRelatedField(
+        source="posting.company", read_only=True, view_name="company-detail"
+    )
+    company_name = CharField(source="posting.company.name", read_only=True)
+    posting_url = CharField(source="posting.url", read_only=True)
+
     class Meta:
         model = Application
         fields = [
             "pk",
             "link",
+            "company",
+            "company_name",
             "posting",
+            "posting_url",
             "bona_fide",
             "applied",
             "reported",
