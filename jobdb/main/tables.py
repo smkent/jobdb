@@ -25,7 +25,10 @@ class CompanyHTMxTable(Table):
         fields = ["name", "hq", "url", "employees_est", "notes"]
 
     def render_url(self, value: str, record: Any) -> str:
-        return format_html(f'<a href="{value}">{record.url_text}</a>')
+        return format_html(
+            f'<a href="{value}" target="_blank" rel="noopener noreferrer">'
+            f"{record.url_text}</a>"
+        )
 
     def render_name(self, value: str, record: Any) -> str:
         portal_url = reverse("personal:main_company_change", args=(record.pk,))
@@ -44,7 +47,10 @@ class QueueHTMxTable(Table):
         fields = ["company__name", "url", "title", "notes"]
 
     def render_url(self, value: str, record: Any) -> str:
-        return format_html(f'<a href="{value}">{record.url_text}</a>')
+        return format_html(
+            f'<a href="{value}" target="_blank" rel="noopener noreferrer">'
+            f"{record.url_text}</a>"
+        )
 
     def render_title(self, value: str, record: Any) -> str:
         portal_url = reverse("personal:main_posting_change", args=(record.pk,))
