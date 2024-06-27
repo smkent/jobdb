@@ -16,6 +16,8 @@ class UserSerializer(HyperlinkedModelSerializer):
         fields = [
             "pk",
             "username",
+            "first_name",
+            "last_name",
             "email",
             "phone",
             "linkedin",
