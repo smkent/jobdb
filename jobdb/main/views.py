@@ -8,9 +8,9 @@ from django.urls import reverse
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 
-from .filters import CompanyFilter, QueueFilter
+from .filters import QueueFilter
 from .models import Application, Company, Posting
-from .tables import CompanyHTMxTable, QueueHTMxTable
+from .tables import QueueHTMxTable
 
 
 @login_required
@@ -43,14 +43,6 @@ class BaseHTMxTableView(SingleTableMixin, FilterView):
         if self.request.htmx:
             return "main/table_partial.html"
         return "main/table_htmx.html"
-
-
-class CompanyHTMxTableView(BaseHTMxTableView):
-    template_table_title = "Companies"
-    template_table_htmx_route = "company_htmx"
-    table_class = CompanyHTMxTable
-    queryset = Company.objects.all()
-    filterset_class = CompanyFilter
 
 
 class QueueHTMxTableView(BaseHTMxTableView):
