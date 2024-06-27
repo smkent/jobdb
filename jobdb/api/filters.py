@@ -32,7 +32,7 @@ class ApplicationFilter(FilterSet):
 
     class Meta:
         model = Application
-        fields = ["company", "reported"]
+        fields = ["company", "reported", "bona_fide"]
 
     def filter_reported(
         self, queryset: QuerySet, name: str, value: bool

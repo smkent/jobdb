@@ -50,7 +50,6 @@ class CompanyByNameViewSet(BaseCompanyViewSet, RetrieveModelMixin):
 class BasePostingViewSet(APIViewSet):
     queryset = Posting.objects.all().order_by("company__name", "title", "url")
     serializer_class = serializers.PostingSerializer
-    filterset_fields = ["company__name"]
 
 
 class PostingViewSet(BasePostingViewSet, ModelViewSet):
@@ -74,7 +73,6 @@ class BaseApplicationViewSet(APIViewSet):
         "posting__company__name", "posting__title", "posting__url"
     )
     serializer_class = serializers.ApplicationSerializer
-    filterset_fields = ["posting__company__name", "bona_fide"]
 
     def get_queryset(self) -> QuerySet:
         return super().get_queryset().filter(user=self.request.user)
