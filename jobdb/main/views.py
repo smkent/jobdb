@@ -9,10 +9,15 @@ from django.urls import reverse
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 
-from .filters import CompanyFilter, PostingFilter
+from .filters import ApplicationFilter, CompanyFilter, PostingFilter
 from .models import Application, Company, Posting, User
 from .query import posting_queue_set
-from .tables import CompanyHTMxTable, PostingHTMxTable, QueueHTMxTable
+from .tables import (
+    ApplicationHTMxTable,
+    CompanyHTMxTable,
+    PostingHTMxTable,
+    QueueHTMxTable,
+)
 
 
 @login_required
@@ -25,6 +30,9 @@ def index(request: HttpRequest) -> HttpResponse:
         .annotate(count=Count("pk"))
         .count()
     )
+    unreported_apps_count = (
+        your_apps.count() - your_apps.filter(reported__isnull=False).count()
+    )
     return render(
         request,
         "main/index.html",
@@ -33,7 +41,7 @@ def index(request: HttpRequest) -> HttpResponse:
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
             "your_apps": your_apps,
-            "reported_apps": your_apps.filter(reported__isnull=False),
+            "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
             "posting_queue_company_count": posting_queue_company_count,
         },
@@ -100,3 +108,18 @@ class PostingHTMxTableView(QueueHTMxTableView):
                 )
             ),
         ).order_by("company__name", "title", "url")
+
+
+class ApplicationHTMxTableView(BaseHTMxTableView):
+    template_table_title = "Your applications"
+    template_table_htmx_route = "application_htmx"
+    table_class = ApplicationHTMxTable
+    filterset_class = ApplicationFilter
+
+    def get_queryset(self) -> QuerySet:
+        return Application.objects.filter(user=self.request.user).order_by(
+            "-applied",
+            "posting__company__name",
+            "posting__title",
+            "posting__url",
+        )

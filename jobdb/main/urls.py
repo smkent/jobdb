@@ -10,5 +10,10 @@ urlpatterns = [
     path(
         "postings", views.PostingHTMxTableView.as_view(), name="posting_htmx"
     ),
+    path(
+        "applications",
+        views.ApplicationHTMxTableView.as_view(),
+        name="application_htmx",
+    ),
     path("queue", views.QueueHTMxTableView.as_view(), name="queue_htmx"),
 ]

@@ -1,11 +1,12 @@
 from typing import Any
 
 from django.urls import reverse
+from django.utils.formats import localize
 from django.utils.html import format_html
 from django_tables2 import Column  # type: ignore
 from django_tables2 import Table
 
-from .models import Company, Posting
+from .models import Application, Company, Posting
 
 
 class CompanyHTMxTable(Table):
@@ -93,3 +94,56 @@ class PostingHTMxTable(QueueHTMxTable):
 
     def render_closed(self, value: Any) -> Any:
         return "Yes" if value else ()
+
+
+class ApplicationHTMxTable(Table):
+    posting__company__name = Column(attrs={"th": {"style": "width: 200px;"}})
+    posting__url = Column(attrs={"th": {"style": "width: 500px;"}})
+    posting__title = Column(attrs={"th": {"style": "width: 400px;"}})
+    applied = Column(
+        attrs={"th": {"style": "width: 150px;"}},
+    )
+    reported = Column(attrs={"th": {"style": "width: 150px;"}})
+
+    class Meta:
+        model = Application
+        template_name = "main/bootstrap_htmx.html"
+        sequence = [
+            "posting__company__name",
+            "posting__url",
+            "posting__title",
+            "applied",
+            "reported",
+            "bona_fide",
+            "notes",
+        ]
+        fields = [
+            "posting__company__name",
+            "posting__url",
+            "posting__title",
+            "applied",
+            "reported",
+            "bona_fide",
+            "notes",
+        ]
+
+    def render_posting__url(self, value: str, record: Any) -> str:
+        return format_html(f'<a href="{value}">{record.posting.url_text}</a>')
+
+    def render_posting__title(self, value: str, record: Any) -> str:
+        portal_url = reverse(
+            "personal:main_posting_change", args=(record.posting.pk,)
+        )
+        return format_html(f'<a href="{portal_url}">{value}</a>')
+
+    def render_posting__company__name(self, value: str, record: Any) -> str:
+        portal_url = reverse(
+            "personal:main_company_change", args=(record.posting.company.pk,)
+        )
+        return format_html(f'<a href="{portal_url}">{value}</a>')
+
+    def render_applied(self, value: str, record: Any) -> str:
+        portal_url = reverse(
+            "personal:main_application_change", args=(record.pk,)
+        )
+        return format_html(f'<a href="{portal_url}">{localize(value)}</a>')
