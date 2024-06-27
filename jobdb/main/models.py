@@ -165,8 +165,10 @@ class Posting(TimeStampedModel):
         return f"{self.company.name} • {self.title} • {self.url}{closed}"
 
     def _check_duplicate_urls(self) -> None:
+        manager = self.__class__.objects
         for url in [self.url] + (self.job_board_urls or []):
-            if self.__class__.objects.by_url(url).count() > 0:  # type: ignore
+            existing = manager.by_url(url).exclude(pk=self.pk)  # type: ignore
+            if existing.count() > 0:
                 raise ValidationError(
                     f"A posting containing URL {url} already exists"
                 )
