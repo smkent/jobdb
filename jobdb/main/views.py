@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -28,7 +29,7 @@ def index(request: HttpRequest) -> HttpResponse:
     )
 
 
-class BaseHTMxTableView(SingleTableMixin, FilterView):
+class BaseHTMxTableView(LoginRequiredMixin, SingleTableMixin, FilterView):
     template_table_title = "Untitled table"
     template_table_htmx_route = ""
     paginate_by = 15
