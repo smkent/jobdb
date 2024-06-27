@@ -1,33 +1,45 @@
 {% extends "main/base.html" %}
 
-{% block content %}
-
-  {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-  {% endif %}
-
-  {% if next %}
-    {% if user.is_authenticated %}
-      <p>Your account doesn't have access to this page. To proceed,
-        please login with an account that has access.</p>
-    {% endif %}
-  {% endif %}
-
-  <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-      <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </tr>
-    </table>
-
-    <input type="submit" value="login">
-    <input type="hidden" name="next" value="{{ next }}">
-  </form>
-
+{% block body %}
+  <body style="height: 100vh;">
+    <div
+      class="vstack gap-0 d-flex align-items-center justify-content-center"
+      style="height: 100%;">
+      <div class="text-danger">
+        {% if form.errors %}
+          <p>Your username and password didn't match. Please try again.</p><br />
+        {% endif %}
+        {% if next %}
+          {% if user.is_authenticated %}
+            <p>Your account doesn't have access to this page. To proceed,
+              please login with an account that has access.</p><br />
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="p-5 rounded shadow" style="background-color: #dddde5;">
+        <form method="post" action="{% url 'login' %}" role="form">
+          <div class="row">
+            {% csrf_token %}
+            <table cellpadding=5>
+              <tr>
+                <td class="text-end">{{ form.username.label_tag }}</td>
+                <td>{{ form.username }}</td>
+              </tr>
+              <tr>
+                <td class="text-end">{{ form.password.label_tag }}</td>
+                <td>{{ form.password }}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="row">
+            &nbsp;
+          </div>
+          <div class="row">
+            <input type="hidden" name="next" value="{{ next }}">
+            <input type="submit" value="Log in" class="btn btn-primary btn-block">
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
 {% endblock %}
