@@ -13,8 +13,8 @@ from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from ..main.models import Application, Company, Posting, User
-from ..main.query import posting_queue_set
+from ..main.models import Application, Posting, User
+from ..main.query import companies_with_postings_count, posting_queue_set
 from . import serializers
 from .auth import APIKeyAuthentication
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
@@ -36,7 +36,7 @@ class APIViewSet(GenericViewSet):
 
 
 class BaseCompanyViewSet(APIViewSet):
-    queryset = Company.objects.all().order_by("name")
+    queryset = companies_with_postings_count().order_by("name")
     serializer_class = serializers.CompanySerializer
 
 
