@@ -2,17 +2,17 @@ from typing import Any
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, QuerySet
+from django.db.models import Case, Count, F, Max, QuerySet, When
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 
-from .filters import CompanyFilter, QueueFilter
+from .filters import CompanyFilter, PostingFilter
 from .models import Application, Company, Posting, User
 from .query import posting_queue_set
-from .tables import CompanyHTMxTable, QueueHTMxTable
+from .tables import CompanyHTMxTable, PostingHTMxTable, QueueHTMxTable
 
 
 @login_required
@@ -61,10 +61,37 @@ class QueueHTMxTableView(BaseHTMxTableView):
     template_table_title = "Postings queue"
     template_table_htmx_route = "queue_htmx"
     table_class = QueueHTMxTable
-    filterset_class = QueueFilter
+    filterset_class = PostingFilter
 
     def get_queryset(self) -> QuerySet:
         return posting_queue_set(self.request.user)
+
+
+class PostingHTMxTableView(QueueHTMxTableView):
+    template_table_title = "All postings"
+    template_table_htmx_route = "posting_htmx"
+    table_class = PostingHTMxTable
+    filterset_class = PostingFilter
+
+    def get_queryset(self) -> QuerySet:
+        return Posting.objects.annotate(
+            applied=Max(
+                Case(
+                    When(
+                        application__user=self.request.user,
+                        then=F("application__applied"),
+                    )
+                )
+            ),
+            reported=Max(
+                Case(
+                    When(
+                        application__user=self.request.user,
+                        then=F("application__reported"),
+                    )
+                )
+            ),
+        ).order_by("company__name", "title", "url")
 
 
 class CompanyHTMxTableView(BaseHTMxTableView):

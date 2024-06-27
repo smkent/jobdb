@@ -33,6 +33,45 @@ class QueueHTMxTable(Table):
         return format_html(f'<a href="{portal_url}">{value}</a>')
 
 
+class PostingHTMxTable(QueueHTMxTable):
+    closed = Column(
+        verbose_name="Closed",
+        attrs={"th": {"style": "width: 100px;"}},
+    )
+    applied = Column(
+        attrs={"th": {"style": "width: 150px;"}},
+    )
+    reported = Column(attrs={"th": {"style": "width: 150px;"}})
+
+    class Meta:
+        model = Posting
+        template_name = "main/bootstrap_htmx.html"
+        sequence = [
+            "company__name",
+            "url",
+            "title",
+            "closed",
+            "applied",
+            "reported",
+            "notes",
+        ]
+        fields = [
+            "company__name",
+            "url",
+            "title",
+            "closed",
+            "applied",
+            "reported",
+            "notes",
+        ]
+        row_attrs = {
+            "class": lambda record: ("posting-closed" if record.closed else "")
+        }
+
+    def render_closed(self, value: Any) -> Any:
+        return "Yes" if value else ()
+
+
 class CompanyHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
     hq = Column(attrs={"th": {"style": "width: 200px;"}})

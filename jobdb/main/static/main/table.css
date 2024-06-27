@@ -120,3 +120,12 @@ div.table-container table.table td {
     white-space: nowrap;
     overflow: hidden;
 }
+
+div.table-container tr.posting-closed td {
+    text-decoration: line-through;
+    color: #888;
+}
+
+div.table-container tr.posting-closed td a {
+    color: #888;
+}

@@ -9,6 +9,6 @@
   Reported applications: {{ reported_apps.count }}<br />
   <br />
   <a href="{% url 'company_htmx' %}">Total companies: {{ company.count }}</a><br />
-  Total postings: {{ posting.count }}<br />
+  <a href="{% url 'posting_htmx' %}">Total postings: {{ posting.count }}</a><br />
   Total applications: {{ application.count }}<br />
 {% endblock %}
