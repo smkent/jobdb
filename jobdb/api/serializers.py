@@ -7,7 +7,20 @@ from rest_framework.serializers import (
     IntegerField,
 )
 
-from ..main.models import Application, Company, Posting
+from ..main.models import Application, Company, Posting, User
+
+
+class UserSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "pk",
+            "username",
+            "email",
+            "phone",
+            "linkedin",
+        ]
+        extra_kwargs = {"username": {"read_only": True}}
 
 
 class CompanySerializer(HyperlinkedModelSerializer):
