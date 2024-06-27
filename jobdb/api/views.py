@@ -16,6 +16,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from ..main.models import Application, Company, Posting
 from . import serializers
 from .auth import APIKeyAuthentication
+from .filters import ApplicationFilter, CompanyFilter, PostingFilter
 
 
 class APIPagination(LinkHeaderLimitOffsetPagination):
@@ -39,7 +40,7 @@ class BaseCompanyViewSet(APIViewSet):
 
 
 class CompanyViewSet(BaseCompanyViewSet, ModelViewSet):
-    pass
+    filterset_class = CompanyFilter
 
 
 class CompanyByNameViewSet(BaseCompanyViewSet, RetrieveModelMixin):
@@ -53,7 +54,7 @@ class BasePostingViewSet(APIViewSet):
 
 
 class PostingViewSet(BasePostingViewSet, ModelViewSet):
-    pass
+    filterset_class = PostingFilter
 
 
 class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
@@ -80,7 +81,7 @@ class BaseApplicationViewSet(APIViewSet):
 
 
 class ApplicationViewSet(BaseApplicationViewSet, ModelViewSet):
-    pass
+    filterset_class = ApplicationFilter
 
 
 class ApplicationByURLViewSet(BaseApplicationViewSet, RetrieveModelMixin):

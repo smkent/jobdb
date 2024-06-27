@@ -60,7 +60,7 @@ class PostingFilter(FilterSet):
 class ApplicationFilter(FilterSet):
     query = CharFilter(method="universal_search", label="")
     company = HiddenCharFilter(
-        field_name="company__name", lookup_expr="iexact", label=""
+        field_name="posting__company__name", lookup_expr="iexact", label=""
     )
     reported = BooleanFilter(
         field_name="reported",
