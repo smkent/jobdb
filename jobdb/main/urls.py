@@ -7,4 +7,5 @@ urlpatterns = [
     path(
         "companies", views.CompanyHTMxTableView.as_view(), name="company_htmx"
     ),
+    path("queue", views.QueueHTMxTableView.as_view(), name="queue_htmx"),
 ]

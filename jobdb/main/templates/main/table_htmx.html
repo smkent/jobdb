@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block head_extras %}
-  <link rel="stylesheet" type="text/css" url="{% static 'main/table.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'main/table.css' %}" />
   <script src="{% static '/main/htmx.min.js' %}" defer></script>
 {% endblock %}
 
@@ -11,8 +11,8 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <h1>Company table</h1>
-  <form hx-get="{% url 'company_htmx' %}"
+  <h1>{{ table_title }}</h1>
+  <form hx-get="{{ table_htmx_route }}"
         hx-target="div.table-container"
         hx-swap="outerHTML"
         hx-indicator=".progress"

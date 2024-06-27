@@ -1,6 +1,6 @@
 from django_tables2 import Table  # type: ignore
 
-from .models import Company
+from .models import Company, Posting
 
 
 class CompanyHTMxTable(Table):
@@ -22,4 +22,22 @@ class CompanyHTMxTable(Table):
             "id",
             "modified",
             "employees_est_source",
+        ]
+
+
+class QueueHTMxTable(Table):
+    class Meta:
+        model = Posting
+        template_name = "main/bootstrap_htmx.html"
+        sequence = [
+            "company__name",
+            "url",
+            "title",
+            "notes",
+        ]
+        fields = [
+            "company__name",
+            "url",
+            "title",
+            "notes",
         ]
