@@ -10,7 +10,7 @@ from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 
 from .filters import QueueFilter
-from .models import Application, Company, Posting
+from .models import Application, Company, Posting, User
 from .query import posting_queue_set
 from .tables import QueueHTMxTable
 
@@ -18,6 +18,7 @@ from .tables import QueueHTMxTable
 @login_required
 def index(request: HttpRequest) -> HttpResponse:
     your_apps = Application.objects.filter(user=request.user)
+    assert isinstance(request.user, User)
     return render(
         request,
         "main/index.html",
@@ -26,6 +27,7 @@ def index(request: HttpRequest) -> HttpResponse:
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
             "your_apps": your_apps,
+            "posting_queue": posting_queue_set(request.user, ordered=False),
         },
     )
 

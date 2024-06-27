@@ -2,6 +2,7 @@
 
 {% block content %}
   <h2>Statistics</h2>
+  <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a><br />
   Total companies: {{ company.count }}<br />
   Total postings: {{ posting.count }}<br />
   Total applications: {{ application.count }}<br />
