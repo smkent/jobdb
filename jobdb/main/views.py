@@ -2,7 +2,7 @@ from typing import Any
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -11,6 +11,7 @@ from django_tables2 import SingleTableMixin  # type: ignore
 
 from .filters import QueueFilter
 from .models import Application, Company, Posting
+from .query import posting_queue_set
 from .tables import QueueHTMxTable
 
 
@@ -53,9 +54,4 @@ class QueueHTMxTableView(BaseHTMxTableView):
     filterset_class = QueueFilter
 
     def get_queryset(self) -> QuerySet:
-        return (
-            Posting.objects.filter(closed__isnull=True)
-            .annotate(has_application=Q(application__user=self.request.user))
-            .filter(has_application__isnull=True)
-            .order_by("company__name", "title", "url")
-        )
+        return posting_queue_set(self.request.user)
