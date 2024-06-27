@@ -13,9 +13,11 @@ from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from ..main.models import Application, Company, Posting
+from ..main.models import Application, Company, Posting, User
+from ..main.query import posting_queue_set
 from . import serializers
 from .auth import APIKeyAuthentication
+from .filters import ApplicationFilter, CompanyFilter, PostingFilter
 
 
 class APIPagination(LinkHeaderLimitOffsetPagination):
@@ -39,7 +41,7 @@ class BaseCompanyViewSet(APIViewSet):
 
 
 class CompanyViewSet(BaseCompanyViewSet, ModelViewSet):
-    pass
+    filterset_class = CompanyFilter
 
 
 class CompanyByNameViewSet(BaseCompanyViewSet, RetrieveModelMixin):
@@ -49,11 +51,10 @@ class CompanyByNameViewSet(BaseCompanyViewSet, RetrieveModelMixin):
 class BasePostingViewSet(APIViewSet):
     queryset = Posting.objects.all().order_by("company__name", "title", "url")
     serializer_class = serializers.PostingSerializer
-    filterset_fields = ["company__name"]
 
 
 class PostingViewSet(BasePostingViewSet, ModelViewSet):
-    pass
+    filterset_class = PostingFilter
 
 
 class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
@@ -68,19 +69,26 @@ class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
             return get_object_or_404(qs)  # type: ignore
 
 
+class PostingQueueViewSet(BasePostingViewSet, ModelViewSet):
+    filterset_class = PostingFilter
+
+    def get_queryset(self) -> QuerySet:
+        assert isinstance(self.request.user, User)
+        return posting_queue_set(self.request.user)
+
+
 class BaseApplicationViewSet(APIViewSet):
     queryset = Application.objects.all().order_by(
         "posting__company__name", "posting__title", "posting__url"
     )
     serializer_class = serializers.ApplicationSerializer
-    filterset_fields = ["posting__company__name", "bona_fide"]
 
     def get_queryset(self) -> QuerySet:
         return super().get_queryset().filter(user=self.request.user)
 
 
 class ApplicationViewSet(BaseApplicationViewSet, ModelViewSet):
-    pass
+    filterset_class = ApplicationFilter
 
 
 class ApplicationByURLViewSet(BaseApplicationViewSet, RetrieveModelMixin):

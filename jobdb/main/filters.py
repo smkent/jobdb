@@ -5,7 +5,7 @@ from django.db.models import Q, QuerySet
 from django.forms import CharField, HiddenInput
 from django_filters import BooleanFilter, CharFilter, FilterSet  # type: ignore
 
-from .models import Posting
+from .models import Application, Company, Posting
 
 
 class HiddenCharField(CharField):
@@ -20,7 +20,7 @@ class CompanyFilter(FilterSet):
     query = CharFilter(method="universal_search", label="")
 
     class Meta:
-        model = Posting
+        model = Company
         fields = ["query"]
 
     def universal_search(
@@ -60,7 +60,7 @@ class PostingFilter(FilterSet):
 class ApplicationFilter(FilterSet):
     query = CharFilter(method="universal_search", label="")
     company = HiddenCharFilter(
-        field_name="company__name", lookup_expr="iexact", label=""
+        field_name="posting__company__name", lookup_expr="iexact", label=""
     )
     reported = BooleanFilter(
         field_name="reported",
@@ -69,7 +69,7 @@ class ApplicationFilter(FilterSet):
     )
 
     class Meta:
-        model = Posting
+        model = Application
         fields = ["query"]
 
     def universal_search(
