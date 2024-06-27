@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "main/base.html" %}
 
 {% block content %}
   <h1>Welcome, <b>{{request.user}}</b></h1>
@@ -14,6 +14,8 @@
   {% endif %}
   <br />
   <a href="{% url 'api-root' %}">API</a><br />
+  <br />
+  <a href="{% url 'queue_htmx' %}">Postings queue</a><br />
   <hr />
   <h2>Statistics</h2>
   Total companies: {{ company.count }}<br />

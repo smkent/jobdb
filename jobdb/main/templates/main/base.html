@@ -1,11 +1,16 @@
 {% load static %}
+{% load django_bootstrap5 %}
 <!DOCTYPE html>
 <html>
-  {% block header %}
+  {% block head %}
     <head>
       <title>{{ title }}</title>
       <link rel="shortcut icon" type="image/svg+xml"
             href="{% static 'main/briefcase.svg' %}" />
+      {% bootstrap_css %}
+      {% bootstrap_javascript %}
+      {% block head_extras %}
+      {% endblock %}
     </head>
   {% endblock %}
 
