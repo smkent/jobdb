@@ -9,8 +9,14 @@ from drf_link_header_pagination import (  # type: ignore
 )
 from drf_problems.exceptions import exception_handler  # type: ignore
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import (
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+)
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView as BaseAPIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from ..main.models import Application, Posting, User
@@ -25,14 +31,26 @@ class APIPagination(LinkHeaderLimitOffsetPagination):
     max_limit = 1000
 
 
-class APIViewSet(GenericViewSet):
+class APIView(GenericAPIView, BaseAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication, APIKeyAuthentication]
+
+
+class APIViewSet(APIView, GenericViewSet):
     filter_backends = [DjangoFilterBackend]
     pagination_class = APIPagination
 
     def get_exception_handler(self) -> Any:
         return exception_handler
+
+
+class MeView(APIViewSet, RetrieveModelMixin, UpdateModelMixin):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+
+    def get_object(self) -> User:
+        assert isinstance(self.request.user, User)
+        return self.request.user
 
 
 class BaseCompanyViewSet(APIViewSet):

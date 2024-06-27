@@ -25,6 +25,12 @@ router.register(
 
 urlpatterns = [
     path("", include(router.urls)),
+    path(
+        "me",
+        views.MeView.as_view(
+            {"get": "retrieve", "put": "update", "patch": "partial_update"}
+        ),
+    ),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "swagger/",
