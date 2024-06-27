@@ -2,7 +2,7 @@ from typing import Any
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import QuerySet
+from django.db.models import Count, QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -19,6 +19,12 @@ from .tables import QueueHTMxTable
 def index(request: HttpRequest) -> HttpResponse:
     your_apps = Application.objects.filter(user=request.user)
     assert isinstance(request.user, User)
+    posting_queue = posting_queue_set(request.user, ordered=False)
+    posting_queue_company_count = (
+        posting_queue.values("company__name")
+        .annotate(count=Count("pk"))
+        .count()
+    )
     return render(
         request,
         "main/index.html",
@@ -27,7 +33,9 @@ def index(request: HttpRequest) -> HttpResponse:
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
             "your_apps": your_apps,
-            "posting_queue": posting_queue_set(request.user, ordered=False),
+            "reported_apps": your_apps.filter(reported__isnull=False),
+            "posting_queue": posting_queue,
+            "posting_queue_company_count": posting_queue_company_count,
         },
     )
 
