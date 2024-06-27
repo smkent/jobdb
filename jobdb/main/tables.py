@@ -8,6 +8,29 @@ from django_tables2 import Table
 from .models import Company, Posting
 
 
+class CompanyHTMxTable(Table):
+    name = Column(attrs={"th": {"style": "width: 200px;"}})
+    hq = Column(attrs={"th": {"style": "width: 200px;"}})
+    url = Column(attrs={"th": {"style": "width: 200px;"}})
+    employees_est = Column(
+        verbose_name="Est. # employees",
+        attrs={"th": {"style": "width: 200px;"}},
+    )
+
+    class Meta:
+        model = Company
+        template_name = "main/bootstrap_htmx.html"
+        sequence = ["name", "hq", "url", "employees_est", "notes"]
+        fields = ["name", "hq", "url", "employees_est", "notes"]
+
+    def render_url(self, value: str, record: Any) -> str:
+        return format_html(f'<a href="{value}">{record.url_text}</a>')
+
+    def render_name(self, value: str, record: Any) -> str:
+        portal_url = reverse("personal:main_company_change", args=(record.pk,))
+        return format_html(f'<a href="{portal_url}">{value}</a>')
+
+
 class QueueHTMxTable(Table):
     company__name = Column(attrs={"th": {"style": "width: 200px;"}})
     url = Column(attrs={"th": {"style": "width: 500px;"}})
@@ -70,26 +93,3 @@ class PostingHTMxTable(QueueHTMxTable):
 
     def render_closed(self, value: Any) -> Any:
         return "Yes" if value else ()
-
-
-class CompanyHTMxTable(Table):
-    name = Column(attrs={"th": {"style": "width: 200px;"}})
-    hq = Column(attrs={"th": {"style": "width: 200px;"}})
-    url = Column(attrs={"th": {"style": "width: 200px;"}})
-    employees_est = Column(
-        verbose_name="Est. # employees",
-        attrs={"th": {"style": "width: 200px;"}},
-    )
-
-    class Meta:
-        model = Company
-        template_name = "main/bootstrap_htmx.html"
-        sequence = ["name", "hq", "url", "employees_est", "notes"]
-        fields = ["name", "hq", "url", "employees_est", "notes"]
-
-    def render_url(self, value: str, record: Any) -> str:
-        return format_html(f'<a href="{value}">{record.url_text}</a>')
-
-    def render_name(self, value: str, record: Any) -> str:
-        portal_url = reverse("personal:main_company_change", args=(record.pk,))
-        return format_html(f'<a href="{portal_url}">{value}</a>')

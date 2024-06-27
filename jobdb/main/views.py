@@ -57,6 +57,14 @@ class BaseHTMxTableView(LoginRequiredMixin, SingleTableMixin, FilterView):
         return "main/table_htmx.html"
 
 
+class CompanyHTMxTableView(BaseHTMxTableView):
+    template_table_title = "All companies"
+    template_table_htmx_route = "company_htmx"
+    table_class = CompanyHTMxTable
+    filterset_class = CompanyFilter
+    queryset = Company.objects.all()
+
+
 class QueueHTMxTableView(BaseHTMxTableView):
     template_table_title = "Postings queue"
     template_table_htmx_route = "queue_htmx"
@@ -92,11 +100,3 @@ class PostingHTMxTableView(QueueHTMxTableView):
                 )
             ),
         ).order_by("company__name", "title", "url")
-
-
-class CompanyHTMxTableView(BaseHTMxTableView):
-    template_table_title = "All companies"
-    template_table_htmx_route = "company_htmx"
-    table_class = CompanyHTMxTable
-    filterset_class = CompanyFilter
-    queryset = Company.objects.all()

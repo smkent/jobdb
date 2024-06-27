@@ -16,6 +16,25 @@ class HiddenCharFilter(CharFilter):
     field_class = HiddenCharField
 
 
+class CompanyFilter(FilterSet):
+    query = CharFilter(method="universal_search", label="")
+
+    class Meta:
+        model = Posting
+        fields = ["query"]
+
+    def universal_search(
+        self, queryset: QuerySet, name: str, value: Any
+    ) -> QuerySet:
+        if value.replace(".", "", 1).isdigit():
+            value = Decimal(value)
+            return queryset.filter(Q(pk=value))
+        condition = Q()
+        for field in ["name", "url", "notes"]:
+            condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
+        return queryset.filter(condition)
+
+
 class PostingFilter(FilterSet):
     query = CharFilter(method="universal_search", label="")
     company = HiddenCharFilter(
@@ -34,24 +53,5 @@ class PostingFilter(FilterSet):
             return queryset.filter(Q(pk=value))
         condition = Q()
         for field in ["company__name", "url", "notes"]:
-            condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
-        return queryset.filter(condition)
-
-
-class CompanyFilter(FilterSet):
-    query = CharFilter(method="universal_search", label="")
-
-    class Meta:
-        model = Posting
-        fields = ["query"]
-
-    def universal_search(
-        self, queryset: QuerySet, name: str, value: Any
-    ) -> QuerySet:
-        if value.replace(".", "", 1).isdigit():
-            value = Decimal(value)
-            return queryset.filter(Q(pk=value))
-        condition = Q()
-        for field in ["name", "url", "notes"]:
             condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
         return queryset.filter(condition)
