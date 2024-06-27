@@ -1,14 +1,26 @@
 from decimal import Decimal
 from typing import Any
 
-import django_filters  # type: ignore
 from django.db.models import Q, QuerySet
+from django.forms import CharField, HiddenInput
+from django_filters import CharFilter, FilterSet  # type: ignore
 
 from .models import Posting
 
 
-class QueueFilter(django_filters.FilterSet):
-    query = django_filters.CharFilter(method="universal_search", label="")
+class HiddenCharField(CharField):
+    widget = HiddenInput
+
+
+class HiddenCharFilter(CharFilter):
+    field_class = HiddenCharField
+
+
+class QueueFilter(FilterSet):
+    query = CharFilter(method="universal_search", label="")
+    company = HiddenCharFilter(
+        field_name="company__name", lookup_expr="iexact", label=""
+    )
 
     class Meta:
         model = Posting
