@@ -118,6 +118,9 @@ addopts = """\
     --cov-report xml:.pytest_coverage.xml \
     --junitxml=.pytest_results.xml \
 """
+filterwarnings = [
+    "ignore::django.utils.deprecation.RemovedInDjango60Warning",
+]
 DJANGO_SETTINGS_MODULE = "jobdb.settings.dev"
 
 # vim: ft=cfg
