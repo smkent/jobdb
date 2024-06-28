@@ -2,7 +2,18 @@
 
 {% block content %}
   <h2>Profile</h2>
-  <a href="{% url 'api-me' %}">User profile</a><br />
+  <a href="{% url 'user_profile_edit' %}">Edit user profile</a><br />
+  Name: <b>{{ request.user.first_name }} {{ request.user.last_name }}</b><br />
+  Email: {{ request.user.email|default:'(none)' }}<br />
+  Phone: {{ request.user.phone|default:'(none)' }}<br />
+  LinkedIn:
+  {% if request.user.linkedin %}
+    <a href="{{ request.user.linkedin }}" target="_blank" rel="noopener noreferrer">
+      {{ request.user.linkedin }}
+    </a>
+  {% else %}
+    (none)
+  {% endif %}<br />
   <br />
   <h2>Summary</h2>
   <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a><br />

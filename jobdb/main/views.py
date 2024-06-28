@@ -1,16 +1,18 @@
 from typing import Any
 
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Case, Count, F, Max, QuerySet, When
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-from django.urls import reverse
+from django.db.models import Case, Count, F, Max, Model, QuerySet, When
+from django.forms import ModelForm
+from django.http import HttpResponse
+from django.urls import reverse, reverse_lazy
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 from django_tables2.export import views as export_views  # type: ignore
 
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
+from .forms import UserProfileForm
 from .models import Application, Company, Posting, User
 from .query import companies_with_postings_count, posting_queue_set
 from .tables import (
@@ -30,23 +32,29 @@ class ExportMixin(export_views.ExportMixin):
         return f"{export_name}.{export_format}"
 
 
-@login_required
-def index(request: HttpRequest) -> HttpResponse:
-    your_apps = Application.objects.filter(user=request.user)
-    assert isinstance(request.user, User)
-    posting_queue = posting_queue_set(request.user, ordered=False)
-    posting_queue_company_count = (
-        posting_queue.values("company__name")
-        .annotate(count=Count("pk"))
-        .count()
-    )
-    unreported_apps_count = (
-        your_apps.count() - your_apps.filter(reported__isnull=False).count()
-    )
-    return render(
-        request,
-        "main/index.html",
-        {
+class BaseView(LoginRequiredMixin):
+    pass
+
+
+class IndexView(BaseView, TemplateView):
+    template_name = "main/index.html"
+
+    def get_context_data(self, **kwargs: Any) -> Any:
+        context = super().get_context_data(**kwargs)
+        assert isinstance(self.request.user, User)
+        your_apps = Application.objects.filter(user=self.request.user)
+        posting_queue = posting_queue_set(self.request.user, ordered=False)
+        posting_queue_company_count = (
+            posting_queue.values("company__name")
+            .annotate(count=Count("pk"))
+            .count()
+        )
+        unreported_apps_count = (
+            your_apps.count()
+            - your_apps.filter(reported__isnull=False).count()
+        )
+
+        return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
@@ -54,13 +62,36 @@ def index(request: HttpRequest) -> HttpResponse:
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
             "posting_queue_company_count": posting_queue_company_count,
-        },
-    )
+        }
 
 
-class BaseHTMxTableView(
-    LoginRequiredMixin, ExportMixin, SingleTableMixin, FilterView
-):
+class BaseModelFormView(BaseView, FormView):
+    template_name = "main/form.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponse:
+        form.save()
+        return super().form_valid(form)
+
+    def get_instance(self) -> Model:
+        raise NotImplementedError
+
+    def get_form(self, form_class: type[ModelForm] | None = None) -> ModelForm:
+        return (form_class or self.get_form_class())(
+            self.request.POST or None, instance=self.get_instance()
+        )
+
+
+class UserProfileFormView(BaseModelFormView):
+    template_name = "main/user_profile_form.html"
+    form_class = UserProfileForm
+    success_url = reverse_lazy("index")
+
+    def get_instance(self) -> Model:
+        assert isinstance(self.request.user, User)
+        return self.request.user
+
+
+class BaseHTMxTableView(BaseView, ExportMixin, SingleTableMixin, FilterView):
     template_table_title = "Untitled table"
     template_table_htmx_route = ""
     paginate_by = 15
