@@ -37,6 +37,7 @@ django-crispy-forms = "^2.2"
 django-bootstrap5 = "^24.2"
 crispy-bootstrap5 = "^2024.2"
 tablib = {extras = ["all"], version = "^3.6.1"}
+pytest-django = "^4.8.0"
 
 [tool.poetry.dev-dependencies]
 bandit = {extras = ["toml"], version = "*"}
