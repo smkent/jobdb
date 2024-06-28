@@ -1,4 +1,5 @@
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Case, Count, Max, Q, QuerySet, When
+from django.db.models.expressions import Value
 
 from .models import Company, Posting, User
 
@@ -6,7 +7,11 @@ from .models import Company, Posting, User
 def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
     qs = (
         Posting.objects.filter(closed__isnull=True)
-        .annotate(has_application=Q(application__user=user))
+        .annotate(
+            has_application=Max(
+                Case(When(application__user=user, then=Value(1)))
+            )
+        )
         .filter(Q(has_application=False) | Q(has_application__isnull=True))
     )
     if ordered:
