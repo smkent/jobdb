@@ -49,8 +49,21 @@
     modified: 2024-01-01 00:00:00Z
     name: Initech
     hq: Everytown, USA
-    url: example.com
-    careers_url: careers.example.com
+    url: initech.example.com
+    careers_url: careers.initech.example.com
+    employees_est: "15"
+    employees_est_source: "LinkedIn company page"
+    how_found: "LinkedIn"
+
+- model: main.company
+  pk: 2
+  fields:
+    created: 2024-01-02 00:00:00Z
+    modified: 2024-01-02 00:00:00Z
+    name: Initrode
+    hq: Everytown, USA
+    url: initrode.example.com
+    careers_url: careers.initrode.example.com
     employees_est: "15"
     employees_est_source: "LinkedIn company page"
     how_found: "LinkedIn"
@@ -90,6 +103,19 @@
     url: https://careers.example.com/jobs/3
     title: Señor Digital Sensei
     location: Seattle, WA
+
+- model: main.posting
+  pk: 20
+  fields:
+    created: 2024-01-01 00:00:00Z
+    modified: 2024-01-01 00:00:00Z
+    company: 2
+    url: https://careers.initrode.example.com/jobs/1
+    job_board_urls:
+    - https://linkedin.example.com/jobs/3
+    title: Executive Michael Bolton
+    location: Somewhere, WA
+    wa_jurisdiction: ''
 
 - model: main.application
   pk: 1
@@ -141,3 +167,12 @@
     posting: 12
     bona_fide: 3
     applied: 2024-02-06 00:00:00Z
+
+- model: main.application
+  pk: 7
+  fields:
+    user: 1138
+    posting: 20
+    bona_fide: 3
+    applied: 2024-02-08 00:00:00Z
+    reported: 2024-02-10 00:00:00Z

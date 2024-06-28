@@ -1,6 +1,6 @@
 from django.db.models import Case, Count, F, Max, Q, QuerySet, When
 
-from .models import Company, Posting, User
+from .models import Application, Company, Posting, User
 
 
 def posting_with_applications(
@@ -26,4 +26,13 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
 def companies_with_postings_count() -> QuerySet:
     return Company.objects.annotate(  # type: ignore
         posting_count=Count("posting")
+    )
+
+
+def leaderboard_application_companies() -> QuerySet:
+    return (
+        Application.objects.annotate(company=F("posting__company__name"))
+        .values("company")
+        .annotate(application_count=Count("pk"))
+        .order_by("-application_count", "company")
     )

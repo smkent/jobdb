@@ -19,7 +19,11 @@ from .filters import (
 )
 from .forms import UserProfileForm
 from .models import Application, Company, Posting, User
-from .query import companies_with_postings_count, posting_queue_set
+from .query import (
+    companies_with_postings_count,
+    leaderboard_application_companies,
+    posting_queue_set,
+)
 from .tables import (
     ApplicationHTMxTable,
     CompanyHTMxTable,
@@ -48,25 +52,37 @@ class IndexView(BaseView, TemplateView):
         context = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User)
         your_apps = Application.objects.filter(user=self.request.user)
-        posting_queue = posting_queue_set(self.request.user, ordered=False)
-        posting_queue_company_count = (
-            posting_queue.values("company__name")
-            .annotate(count=Count("pk"))
-            .count()
+        your_apps_company_count = (
+            your_apps.annotate(company=F("posting__company__name"))
+            .values("company")
+            .annotate(count=Count("company"))
+            .order_by("-count", "company")
         )
+        posting_queue = posting_queue_set(self.request.user, ordered=False)
+        posting_queue_companies = posting_queue.values(
+            "company__name"
+        ).annotate(count=Count("pk"))
         unreported_apps_count = (
             your_apps.count()
             - your_apps.filter(reported__isnull=False).count()
         )
-
+        leaderboard = Application.objects.values(
+            "user__username", "user__first_name"
+        ).annotate(count=Count("user"))
+        leaderboard_companies = leaderboard_application_companies()
         return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
             "your_apps": your_apps,
+            "your_apps_company_count": your_apps_company_count,
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
-            "posting_queue_company_count": posting_queue_company_count,
+            "posting_queue_companies": posting_queue_companies.order_by(
+                "-count", "company__name"
+            ),
+            "leaderboard": leaderboard,
+            "leaderboard_companies": leaderboard_companies,
         }
 
 
