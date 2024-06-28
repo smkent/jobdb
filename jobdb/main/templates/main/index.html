@@ -1,29 +1,52 @@
 {% extends "main/base.html" %}
 
 {% block content %}
-  <h2>Profile</h2>
-  <a href="{% url 'user_profile_edit' %}">Edit user profile</a><br />
-  Name: <b>{{ request.user.first_name }} {{ request.user.last_name }}</b><br />
-  Email: {{ request.user.email|default:'(none)' }}<br />
-  Phone: {{ request.user.phone|default:'(none)' }}<br />
-  LinkedIn:
-  {% if request.user.linkedin %}
-    <a href="{{ request.user.linkedin }}" target="_blank" rel="noopener noreferrer">
-      {{ request.user.linkedin }}
-    </a>
-  {% else %}
-    (none)
-  {% endif %}<br />
-  <br />
-  <h2>Summary</h2>
-  <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a><br />
-  Companies with available postings: {{ posting_queue_company_count }}<br />
-  <br />
-  <a href="{% url 'application_htmx' %}">Your applications: <b>{{ your_apps.count }}</b></a>
-  {% if unreported_apps_count %}
-    (<a href="{% url 'application_htmx' %}?reported=false"><b>{{ unreported_apps_count }}</b> unreported</a>)
-  {% endif %}
-  <br />
-  <a href="{% url 'company_htmx' %}">Total companies: {{ company.count }}</a><br />
-  <a href="{% url 'posting_htmx' %}">Total postings: {{ posting.count }}</a><br />
+  <div class="container-fluid p-0">
+    <div class="row">
+      <div class="col">
+        <h2>Your Applications</h2>
+        <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a>
+        ({{ posting_queue_companies.count }} companies)<br />
+        <a href="{% url 'application_htmx' %}">Your applications: <b>{{ your_apps.count }}</b></a>
+        {% if unreported_apps_count %}
+          (<a href="{% url 'application_htmx' %}?reported=false"><b>{{ unreported_apps_count }}</b> unreported</a>)
+        {% endif %}
+        <br />
+        <br />
+        {% if posting_queue_companies.count %}
+          Top companies with available postings:
+          <ul>
+            {% for c in posting_queue_companies|slice:"0:10" %}
+              {% if forloop.first %}
+              {% endif %}
+              <li>
+                <a href="{% url 'queue_htmx' %}?company={{ c.company__name }}">{{c.company__name}}</a>
+                ({{ c.count }} postings)</li>
+            {% endfor %}
+          </ul>
+          <br />
+        {% endif %}
+        <h2>Profile</h2>
+        <a href="{% url 'user_profile_edit' %}">Edit user profile</a><br />
+        Name: <b>{{ request.user.first_name }} {{ request.user.last_name }}</b><br />
+        Email: {{ request.user.email|default:'(none)' }}<br />
+        Phone: {{ request.user.phone|default:'(none)' }}<br />
+        LinkedIn:
+        {% if request.user.linkedin %}
+          <a href="{{ request.user.linkedin }}" target="_blank" rel="noopener noreferrer">
+            {{ request.user.linkedin }}
+          </a>
+        {% else %}
+          (none)
+        {% endif %}<br />
+        <br />
+      </div>
+      <div class="col">
+        <h2>Data</h2>
+        <a href="{% url 'company_htmx' %}">Total companies: {{ company.count }}</a><br />
+        <a href="{% url 'posting_htmx' %}">Total postings: {{ posting.count }}</a><br />
+        <br />
+      </div>
+    </div>
+  </div>
 {% endblock %}
