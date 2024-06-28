@@ -43,6 +43,12 @@ class IndexView(BaseView, TemplateView):
         context = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User)
         your_apps = Application.objects.filter(user=self.request.user)
+        your_apps_company_count = (
+            your_apps.annotate(company=F("posting__company__name"))
+            .values("company")
+            .annotate(count=Count("company"))
+            .order_by("-count", "company")
+        )
         posting_queue = posting_queue_set(self.request.user, ordered=False)
         posting_queue_companies = posting_queue.values(
             "company__name"
@@ -56,6 +62,7 @@ class IndexView(BaseView, TemplateView):
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
             "your_apps": your_apps,
+            "your_apps_company_count": your_apps_company_count,
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
             "posting_queue_companies": posting_queue_companies.order_by(

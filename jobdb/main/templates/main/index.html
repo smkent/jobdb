@@ -13,19 +13,40 @@
         {% endif %}
         <br />
         <br />
-        {% if posting_queue_companies.count %}
-          Top companies with available postings:
-          <ul>
-            {% for c in posting_queue_companies|slice:"0:10" %}
-              {% if forloop.first %}
-              {% endif %}
-              <li>
-                <a href="{% url 'queue_htmx' %}?company={{ c.company__name }}">{{c.company__name}}</a>
-                ({{ c.count }} postings)</li>
-            {% endfor %}
-          </ul>
-          <br />
-        {% endif %}
+        <div class="container-fluid p-0">
+          <div class="row">
+            {% if posting_queue_companies.count %}
+              <div class="col">
+                Your top companies with available postings:
+                <ul>
+                  {% for c in posting_queue_companies|slice:"0:10" %}
+                    {% if forloop.first %}
+                    {% endif %}
+                    <li>
+                      <a href="{% url 'queue_htmx' %}?company={{ c.company__name }}">{{c.company__name}}</a>
+                      ({{ c.count }} postings)</li>
+                  {% endfor %}
+                </ul>
+                <br />
+              </div>
+            {% endif %}
+            {% if your_apps_company_count.count %}
+              <div class="col">
+                Your top companies:
+                <ul>
+                  {% for c in your_apps_company_count|slice:"0:10" %}
+                    {% if forloop.first %}
+                    {% endif %}
+                    <li>
+                      <a href="{% url 'application_htmx' %}?company={{ c.company }}">{{c.company }}</a>
+                      ({{ c.count }} applications)</li>
+                  {% endfor %}
+                </ul>
+                <br />
+              </div>
+            {% endif %}
+          </div>
+        </div>
         <h2>Profile</h2>
         <a href="{% url 'user_profile_edit' %}">Edit user profile</a><br />
         Name: <b>{{ request.user.first_name }} {{ request.user.last_name }}</b><br />
