@@ -14,7 +14,11 @@ from django_tables2.export import views as export_views  # type: ignore
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
 from .forms import UserProfileForm
 from .models import Application, Company, Posting, User
-from .query import companies_with_postings_count, posting_queue_set
+from .query import (
+    companies_with_postings_count,
+    leaderboard_application_companies,
+    posting_queue_set,
+)
 from .tables import (
     ApplicationHTMxTable,
     CompanyHTMxTable,
@@ -60,6 +64,7 @@ class IndexView(BaseView, TemplateView):
         leaderboard = Application.objects.values(
             "user__username", "user__first_name"
         ).annotate(count=Count("user"))
+        leaderboard_companies = leaderboard_application_companies()
         return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
@@ -72,6 +77,7 @@ class IndexView(BaseView, TemplateView):
                 "-count", "company__name"
             ),
             "leaderboard": leaderboard,
+            "leaderboard_companies": leaderboard_companies,
         }
 
 
