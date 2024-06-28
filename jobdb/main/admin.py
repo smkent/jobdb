@@ -20,6 +20,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from ..admin import personal_admin_site
+from ..main.query import posting_with_applications
 from .models import APIKey, Application, Company, Posting, User
 
 register_portal = partial(register, site=personal_admin_site)
@@ -165,12 +166,12 @@ class PostingAdmin(ModelAdmin):
         "title",
         "url_clickable",
         "is_closed",
-        "location",
+        "modified",
     ]
     list_display_links = ["title"]
     list_filter = [PostingClosedFilter]
     ordering = ["company__name", "title", "url"]
-    actions = ["mark_closed"]
+    actions = ["mark_applied", "mark_closed"]
 
     @display(description=Company._meta.get_field("name").verbose_name)
     def company_name(self, obj: Company) -> str:
@@ -193,6 +194,16 @@ class PostingAdmin(ModelAdmin):
     @require_confirmation(queryset_filter=lambda qs: qs.filter(closed=None))
     def mark_closed(self, request: HttpRequest, queryset: QuerySet) -> Any:
         queryset.update(closed=timezone.now())
+
+    @action(description="Create application entries for selected postings")
+    @require_confirmation
+    def mark_applied(self, request: HttpRequest, queryset: QuerySet) -> Any:
+        assert isinstance(request.user, User)
+        for posting in posting_with_applications(
+            user=request.user, queryset=queryset
+        ).filter(has_application__isnull=True):
+            application = Application(posting=posting, user=request.user)
+            application.save()
 
 
 class ApplicationAdminBase(ModelAdmin):
