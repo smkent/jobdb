@@ -44,7 +44,9 @@
           </div>
         </div>
         <h2>Profile</h2>
+        <a href="{% url 'personal:main_apikey_changelist' %}">API keys</a><br />
         <a href="{% url 'user_profile_edit' %}">Edit user profile</a><br />
+        <br />
         Name: <b>{{ request.user.first_name }} {{ request.user.last_name }}</b><br />
         Email: {{ request.user.email|default:'(none)' }}<br />
         Phone: {{ request.user.phone|default:'(none)' }}<br />
