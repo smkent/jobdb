@@ -1,13 +1,15 @@
-from functools import partial
-from typing import Any
+from functools import partial, wraps
+from typing import Any, Callable
 
 from django.conf import settings
-from django.contrib.admin import ModelAdmin, display, register, site
+from django.contrib.admin import ModelAdmin, action, display, register, site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.html import format_html
 
 from ..admin import personal_admin_site
@@ -22,6 +24,51 @@ site.login = staff_member_required(  # type: ignore
 personal_admin_site.login = login_required(  # type: ignore
     personal_admin_site.login
 )
+
+
+MAFunc = Callable[[ModelAdmin, HttpRequest, QuerySet], Any]
+
+
+def require_confirmation(
+    func: Any = None,
+    queryset_filter: Callable[[QuerySet], QuerySet] | None = None,
+) -> Any:
+    def _decorator(func: MAFunc) -> MAFunc:
+        @wraps(func)
+        def _wrapper(
+            ma: ModelAdmin, request: HttpRequest, queryset: QuerySet
+        ) -> Any:
+            if queryset_filter:
+                queryset = queryset_filter(queryset)
+            if not queryset:
+                return None
+            if request.POST.get("confirmation") is None:
+                request.current_app = ma.admin_site.name
+                context = {
+                    "action": request.POST["action"],
+                    "queryset": queryset,
+                    "opts": ma.model._meta,
+                    "description": (
+                        getattr(ma, request.POST["action"]).short_description
+                    ),
+                    "view_name": (
+                        f"{ma.admin_site.name}"
+                        ":"
+                        f"{ma.model._meta.app_label}"
+                        f"_{ma.model._meta.model_name}_change"
+                    ),
+                }
+                return TemplateResponse(
+                    request, "admin/my_action_confirmation.html", context
+                )
+
+            return func(ma, request, queryset)
+
+        return _wrapper
+
+    if func:
+        return _decorator(func)
+    return _decorator
 
 
 def clickable_url_html(
@@ -126,10 +173,16 @@ class ApplicationAdminBase(ModelAdmin):
         "posting__title",
         "posting__url",
     ]
+    actions = ["mark_reported"]
 
     @display(description="Application")
     def summary(self, obj: Application) -> str:
         return f"{obj.posting.company.name} • {obj.posting.title}"
+
+    @action(description="Mark selected applications as reported")
+    @require_confirmation(queryset_filter=lambda qs: qs.filter(reported=None))
+    def mark_reported(self, request: HttpRequest, queryset: QuerySet) -> Any:
+        queryset.update(reported=timezone.now())
 
 
 @register_portal(Application)
