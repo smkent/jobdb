@@ -1,11 +1,9 @@
 from typing import Any
 
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, Count, F, Max, QuerySet, When
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
 from django.urls import reverse
+from django.views.generic import TemplateView
 from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 from django_tables2.export import views as export_views  # type: ignore
@@ -30,23 +28,29 @@ class ExportMixin(export_views.ExportMixin):
         return f"{export_name}.{export_format}"
 
 
-@login_required
-def index(request: HttpRequest) -> HttpResponse:
-    your_apps = Application.objects.filter(user=request.user)
-    assert isinstance(request.user, User)
-    posting_queue = posting_queue_set(request.user, ordered=False)
-    posting_queue_company_count = (
-        posting_queue.values("company__name")
-        .annotate(count=Count("pk"))
-        .count()
-    )
-    unreported_apps_count = (
-        your_apps.count() - your_apps.filter(reported__isnull=False).count()
-    )
-    return render(
-        request,
-        "main/index.html",
-        {
+class BaseView(LoginRequiredMixin):
+    pass
+
+
+class IndexView(BaseView, TemplateView):
+    template_name = "main/index.html"
+
+    def get_context_data(self, **kwargs: Any) -> Any:
+        context = super().get_context_data(**kwargs)
+        assert isinstance(self.request.user, User)
+        your_apps = Application.objects.filter(user=self.request.user)
+        posting_queue = posting_queue_set(self.request.user, ordered=False)
+        posting_queue_company_count = (
+            posting_queue.values("company__name")
+            .annotate(count=Count("pk"))
+            .count()
+        )
+        unreported_apps_count = (
+            your_apps.count()
+            - your_apps.filter(reported__isnull=False).count()
+        )
+
+        return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
             "application": Application.objects.all(),
@@ -54,13 +58,10 @@ def index(request: HttpRequest) -> HttpResponse:
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
             "posting_queue_company_count": posting_queue_company_count,
-        },
-    )
+        }
 
 
-class BaseHTMxTableView(
-    LoginRequiredMixin, ExportMixin, SingleTableMixin, FilterView
-):
+class BaseHTMxTableView(BaseView, ExportMixin, SingleTableMixin, FilterView):
     template_table_title = "Untitled table"
     template_table_htmx_route = ""
     paginate_by = 15
