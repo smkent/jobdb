@@ -54,7 +54,9 @@ jobs:
           poetry_version: ${{ env.RELEASE_POETRY_VERSION }}
 
       - name: 🔥 Test
-        run: poetry run poe test
+        run: |
+          poetry run python ./manage.py collectstatic --noinput
+          poetry run poe test
 
       - name: 📦 Build and publish container image
         uses: docker/build-push-action@v4.0.0

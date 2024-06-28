@@ -78,22 +78,25 @@ class APIKey(TimeStampedModel):
 
 class Company(TimeStampedModel):
     name: CharField = CharField(
-        max_length=500, unique=True, verbose_name="Company name"
+        max_length=500, unique=True, verbose_name="Company name", default=None
     )
     hq: CharField = CharField(
         max_length=250,
+        default=None,
         verbose_name="Headquarters",
         help_text="Company headquarters location",
     )
     url: URLField = URLField(
         max_length=2048,
         unique=True,
+        default=None,
         verbose_name="URL",
         help_text="Company web site URL",
     )
     careers_url: URLField = URLField(
         max_length=2048,
         unique=True,
+        default=None,
         verbose_name="Careers URL",
         help_text="Careers page URL",
     )
@@ -104,10 +107,14 @@ class Company(TimeStampedModel):
         help_text="Additional careers page URLs",
     )
     employees_est: CharField = CharField(
-        max_length=100, verbose_name="Estimated number of employees"
+        max_length=100,
+        default=None,
+        verbose_name="Estimated number of employees",
     )
     employees_est_source: CharField = CharField(
-        max_length=500, verbose_name="Estimated number of employees source"
+        max_length=500,
+        default=None,
+        verbose_name="Estimated number of employees source",
     )
     how_found: CharField = CharField(
         max_length=250,
@@ -154,6 +161,7 @@ class Posting(TimeStampedModel):
     url: URLField = URLField(
         max_length=2048,
         unique=True,
+        default=None,
         verbose_name="Posting URL",
         help_text="Job posting URL",
     )
@@ -163,7 +171,9 @@ class Posting(TimeStampedModel):
         verbose_name="Job Board URLs",
         help_text="Additional posting URLs that link to the main posting URL",
     )
-    title: CharField = CharField(max_length=500, verbose_name="Role Title")
+    title: CharField = CharField(
+        max_length=500, default=None, verbose_name="Role Title"
+    )
     closed: DateTimeField = DateTimeField(
         null=True, blank=True, verbose_name="Date Closed"
     )
@@ -174,7 +184,7 @@ class Posting(TimeStampedModel):
         help_text="Optional reason role is closed",
     )
     location: CharField = CharField(
-        max_length=500, verbose_name="Role Location"
+        max_length=500, default=None, verbose_name="Role Location"
     )
     wa_jurisdiction: CharField = CharField(
         max_length=2000,
