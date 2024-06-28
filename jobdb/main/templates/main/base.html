@@ -21,13 +21,13 @@
           <div class="container-fluid bg-dark text-light p-2">
             <div class="container-fluid">
               <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-4">
                   <h1>
                     <img src="{% static 'main/briefcase.svg' %}" height=32 width=32 class="align-baseline" />
                     <a href="{% url 'index' %}" class="link-light text-decoration-none">Autojob database</a>
                   </h1>
                 </div>
-                <div class="col-sm-4 text-sm-end">
+                <div class="col-sm-8 text-sm-end">
                   Welcome, <b>{{ request.user }}</b> |
 
                   <form action="{% url 'logout' %}" method="post" class="d-inline-block">
