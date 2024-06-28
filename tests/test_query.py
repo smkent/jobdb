@@ -4,7 +4,6 @@ from jobdb.main.models import User
 from jobdb.main.query import posting_queue_set
 
 
-@pytest.mark.django_db
 @pytest.mark.parametrize(
     ["username", "expected_queue"], [("luke", 0), ("solo", 1), ("vader", 2)]
 )

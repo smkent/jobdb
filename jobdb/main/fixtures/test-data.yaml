@@ -34,6 +34,14 @@
     last_name: Solo
     linkedin: https://linkedin.com/in/han.solo
 
+- model: main.apikey
+  pk: deadbeefdeadbeefdeadbeefdeadbeefdeadbeef
+  fields:
+    created: 1977-05-25 00:00:00Z
+    modified: 1977-05-25 00:00:00Z
+    user: 1138
+    comment: A new access
+
 - model: main.company
   pk: 1
   fields:
