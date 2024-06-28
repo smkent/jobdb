@@ -66,13 +66,16 @@ class IndexView(BaseView, TemplateView):
             your_apps.count()
             - your_apps.filter(reported__isnull=False).count()
         )
-        leaderboard = Application.objects.values(
-            "user__username", "user__first_name"
-        ).annotate(count=Count("user"))
+        leaderboard = (
+            Application.objects.values("user__username", "user__first_name")
+            .annotate(count=Count("user"))
+            .order_by("-count", "user__username")
+        )
         leaderboard_companies = leaderboard_application_companies()
         return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
+            "posting_open": Posting.objects.filter(closed=None),
             "application": Application.objects.all(),
             "your_apps": your_apps,
             "your_apps_company_count": your_apps_company_count,
