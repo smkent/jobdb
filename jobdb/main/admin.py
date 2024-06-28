@@ -2,7 +2,14 @@ from functools import partial, wraps
 from typing import Any, Callable
 
 from django.conf import settings
-from django.contrib.admin import ModelAdmin, action, display, register, site
+from django.contrib.admin import (
+    ModelAdmin,
+    SimpleListFilter,
+    action,
+    display,
+    register,
+    site,
+)
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.decorators import login_required
@@ -130,6 +137,23 @@ class CompanyAdmin(ModelAdmin):
         return clickable_url_html(obj.careers_url)
 
 
+class PostingClosedFilter(SimpleListFilter):
+    title = "Closed"
+    parameter_name = "closed"
+
+    def lookups(
+        self, request: HttpRequest, model_admin: ModelAdmin
+    ) -> list[tuple[str, str]]:
+        return [("open", "Open"), ("closed", "Closed")]
+
+    def queryset(self, request: HttpRequest, queryset: QuerySet) -> QuerySet:
+        if self.value() == "open":
+            return queryset.filter(closed=None)
+        elif self.value() == "closed":
+            return queryset.filter(closed__isnull=False)
+        return queryset
+
+
 @register(Posting)
 @register_portal(Posting)
 class PostingAdmin(ModelAdmin):
@@ -141,8 +165,9 @@ class PostingAdmin(ModelAdmin):
         "location",
     ]
     list_display_links = ["title"]
-    list_filter = ["company__name"]
+    list_filter = [PostingClosedFilter]
     ordering = ["company__name", "title", "url"]
+    actions = ["mark_closed"]
 
     @display(description=Company._meta.get_field("name").verbose_name)
     def company_name(self, obj: Company) -> str:
@@ -161,11 +186,16 @@ class PostingAdmin(ModelAdmin):
     def is_closed(self, obj: Posting) -> str:
         return "Yes" if bool(obj.closed) else "No"
 
+    @action(description="Mark selected postings as closed")
+    @require_confirmation(queryset_filter=lambda qs: qs.filter(closed=None))
+    def mark_closed(self, request: HttpRequest, queryset: QuerySet) -> Any:
+        queryset.update(closed=timezone.now())
+
 
 class ApplicationAdminBase(ModelAdmin):
     list_display = ["summary", "applied", "reported", "bona_fide"]
     list_display_links = ["summary"]
-    list_filter = ["bona_fide", "posting__company__name"]
+    list_filter = ["reported", "bona_fide"]
     ordering = [
         "-applied",
         "user",
