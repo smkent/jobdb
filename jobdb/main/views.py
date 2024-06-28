@@ -57,6 +57,9 @@ class IndexView(BaseView, TemplateView):
             your_apps.count()
             - your_apps.filter(reported__isnull=False).count()
         )
+        leaderboard = Application.objects.values(
+            "user__username", "user__first_name"
+        ).annotate(count=Count("user"))
         return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
@@ -68,6 +71,7 @@ class IndexView(BaseView, TemplateView):
             "posting_queue_companies": posting_queue_companies.order_by(
                 "-count", "company__name"
             ),
+            "leaderboard": leaderboard,
         }
 
 

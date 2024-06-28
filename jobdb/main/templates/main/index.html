@@ -63,10 +63,22 @@
         <br />
       </div>
       <div class="col">
-        <h2>Data</h2>
+        <h2>Total Data</h2>
         <a href="{% url 'company_htmx' %}">Total companies: {{ company.count }}</a><br />
         <a href="{% url 'posting_htmx' %}">Total postings: {{ posting.count }}</a><br />
         <br />
+        {% if leaderboard.count %}
+          <h2>Leaderboard</h2>
+          <ul>
+            {% for u in leaderboard|slice:"0:10" %}
+              {% if forloop.first %}
+              {% endif %}
+              <li>
+                <b>{{ u.user__first_name|default:u.user__username }}</b>
+                ({{ u.count }} applications)</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </div>
     </div>
   </div>
