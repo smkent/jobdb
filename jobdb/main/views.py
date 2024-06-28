@@ -75,6 +75,7 @@ class IndexView(BaseView, TemplateView):
         return context | {
             "company": Company.objects.all(),
             "posting": Posting.objects.all(),
+            "posting_open": Posting.objects.filter(closed=None),
             "application": Application.objects.all(),
             "your_apps": your_apps,
             "your_apps_company_count": your_apps_company_count,
