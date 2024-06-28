@@ -129,16 +129,24 @@ class APIKeyPortalAdmin(ModelAdmin):
 @register(Company)
 @register_portal(Company)
 class CompanyAdmin(ModelAdmin):
-    list_display = ["name", "url_clickable", "careers_url_clickable", "hq"]
+    list_display = [
+        "name",
+        "url_clickable",
+        "careers_url_clickable",
+        "created",
+    ]
     ordering = ["name"]
+    search_fields = ["name", "url"]
 
     @display(description=Company._meta.get_field("url").verbose_name)
     def url_clickable(self, obj: Company) -> str:
-        return clickable_url_html(obj.url)
+        return clickable_url_html(obj.url, display=obj.url_text)
 
     @display(description=Company._meta.get_field("careers_url").verbose_name)
     def careers_url_clickable(self, obj: Company) -> str:
-        return clickable_url_html(obj.careers_url)
+        return clickable_url_html(
+            obj.careers_url, display=obj.careers_url_text
+        )
 
 
 class PostingClosedFilter(SimpleListFilter):
@@ -166,12 +174,13 @@ class PostingAdmin(ModelAdmin):
         "title",
         "url_clickable",
         "is_closed",
-        "modified",
+        "created",
     ]
     list_display_links = ["title"]
     list_filter = [PostingClosedFilter]
     ordering = ["company__name", "title", "url"]
     actions = ["mark_applied", "mark_closed"]
+    search_fields = ["company__name", "title", "url"]
 
     @display(description=Company._meta.get_field("name").verbose_name)
     def company_name(self, obj: Company) -> str:
@@ -184,7 +193,7 @@ class PostingAdmin(ModelAdmin):
 
     @display(description=Posting._meta.get_field("url").verbose_name)
     def url_clickable(self, obj: Posting) -> str:
-        return clickable_url_html(obj.url)
+        return clickable_url_html(obj.url, display=obj.url_text)
 
     @display(description="Closed")
     def is_closed(self, obj: Posting) -> str:
@@ -207,8 +216,15 @@ class PostingAdmin(ModelAdmin):
 
 
 class ApplicationAdminBase(ModelAdmin):
-    list_display = ["summary", "applied", "reported", "bona_fide"]
-    list_display_links = ["summary"]
+    list_display = [
+        "company_name",
+        "role_title",
+        "url_clickable",
+        "applied",
+        "reported",
+        "bona_fide",
+    ]
+    list_display_links = ["role_title"]
     list_filter = ["reported", "bona_fide"]
     ordering = [
         "-applied",
@@ -217,7 +233,31 @@ class ApplicationAdminBase(ModelAdmin):
         "posting__title",
         "posting__url",
     ]
+    search_fields = [
+        "posting__company__name",
+        "posting__title",
+        "posting__url",
+    ]
     actions = ["mark_reported"]
+
+    @display(description=Company._meta.get_field("name").verbose_name)
+    def company_name(self, obj: Company) -> str:
+        assert isinstance(obj.posting.company.name, str)
+        return clickable_url_html(
+            f"../company/{obj.posting.company.pk}/change/",
+            obj.posting.company.name,
+            target="_self",
+        )
+
+    @display(description="Title")
+    def role_title(self, obj: Application) -> Any:
+        return obj.posting.title
+
+    @display(description=Posting._meta.get_field("url").verbose_name)
+    def url_clickable(self, obj: Application) -> str:
+        return clickable_url_html(
+            obj.posting.url, display=obj.posting.url_text
+        )
 
     @display(description="Application")
     def summary(self, obj: Application) -> str:

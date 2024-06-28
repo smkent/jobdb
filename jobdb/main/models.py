@@ -28,6 +28,26 @@ from django_extensions.db.models import TimeStampedModel  # type: ignore
 from .fields import AppliedDateField, URLArray
 
 
+def url_to_text(url: str) -> str:
+    netloc_max = 25
+    path_max = 27
+    url_parts = urlparse(url)
+    split_data = url_parts.path + (
+        "?" + url_parts.query if url_parts.query else ""
+    )
+    bits = split_data.rsplit("/", maxsplit=2)[-2:]
+    path_bits = ("/" + "/".join([bit for bit in bits if bit]))[-path_max:]
+    netloc_bits = (
+        url_parts.netloc[: (netloc_max - 3)] + "[...]"
+        if len(url_parts.netloc) > netloc_max
+        else url_parts.netloc
+    )
+    if path_bits == split_data:
+        return f"{netloc_bits}{path_bits}"
+    else:
+        return f"{netloc_bits}/[...]{path_bits}"
+
+
 class User(AbstractUser):
     phone: CharField = CharField("Phone number", max_length=10, blank=True)
     linkedin: URLField = URLField(
@@ -109,6 +129,10 @@ class Company(TimeStampedModel):
             (self.url or "").removeprefix("https://").removeprefix("http://")
         )
 
+    @property
+    def careers_url_text(self) -> str:
+        return url_to_text(self.careers_url)
+
     class Meta:
         verbose_name_plural = "Companies"
 
@@ -175,23 +199,7 @@ class Posting(TimeStampedModel):
 
     @property
     def url_text(self) -> str:
-        netloc_max = 25
-        path_max = 27
-        url_parts = urlparse(self.url)
-        split_data = url_parts.path + (
-            "?" + url_parts.query if url_parts.query else ""
-        )
-        bits = split_data.rsplit("/", maxsplit=2)[-2:]
-        path_bits = ("/" + "/".join([bit for bit in bits if bit]))[-path_max:]
-        netloc_bits = (
-            url_parts.netloc[: (netloc_max - 3)] + "[...]"
-            if len(url_parts.netloc) > netloc_max
-            else url_parts.netloc
-        )
-        if path_bits == split_data:
-            return f"{netloc_bits}{path_bits}"
-        else:
-            return f"{netloc_bits}/[...]{path_bits}"
+        return url_to_text(self.url)
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         self._check_duplicate_urls()
