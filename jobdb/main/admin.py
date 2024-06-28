@@ -121,6 +121,9 @@ class APIKeyPortalAdmin(ModelAdmin):
     ) -> list[str]:
         return ["comment"] if obj else []
 
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        return super().get_queryset(request).filter(user=request.user)
+
 
 @register(Company)
 @register_portal(Company)
