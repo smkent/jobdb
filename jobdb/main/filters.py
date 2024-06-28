@@ -26,10 +26,9 @@ class CompanyFilter(FilterSet):
     def universal_search(
         self, queryset: QuerySet, name: str, value: Any
     ) -> QuerySet:
-        if value.replace(".", "", 1).isdigit():
-            value = Decimal(value)
-            return queryset.filter(Q(pk=value))
         condition = Q()
+        if value.replace(".", "", 1).isdigit():
+            condition.add(Q(**{"pk": Decimal(value)}), Q.OR)
         for field in ["name", "url", "notes"]:
             condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
         return queryset.filter(condition)
@@ -48,10 +47,9 @@ class PostingFilter(FilterSet):
     def universal_search(
         self, queryset: QuerySet, name: str, value: Any
     ) -> QuerySet:
-        if value.replace(".", "", 1).isdigit():
-            value = Decimal(value)
-            return queryset.filter(Q(pk=value))
         condition = Q()
+        if value.replace(".", "", 1).isdigit():
+            condition.add(Q(**{"pk": Decimal(value)}), Q.OR)
         for field in ["company__name", "url", "notes"]:
             condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
         return queryset.filter(condition)
@@ -75,12 +73,11 @@ class ApplicationFilter(FilterSet):
     def universal_search(
         self, queryset: QuerySet, name: str, value: Any
     ) -> QuerySet:
-        if value.replace(".", "", 1).isdigit():
-            value = Decimal(value)
-            return queryset.filter(Q(pk=value))
         condition = Q()
+        if value.replace(".", "", 1).isdigit():
+            condition.add(Q(**{"pk": Decimal(value)}), Q.OR)
         for field in ["posting__company__name", "posting__url", "notes"]:
-            condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
+            condition.add(Q(**{f"{field}__icontains": str(value)}), Q.OR)
         return queryset.filter(condition)
 
     def filter_reported(
