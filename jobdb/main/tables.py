@@ -28,10 +28,9 @@ class CompanyHTMxTable(Table):
     url = Column(attrs={"th": {"style": "width: 200px;"}})
     careers_urls = Column(
         verbose_name="Careers URLs",
-        # empty_values=(),
+        empty_values=(),
         attrs={"th": {"style": "width: 200px;"}},
     )
-    careers_url = Column(visible=False)
     employees_est = Column(
         verbose_name="Est. # employees",
         attrs={"th": {"style": "width: 200px;"}},
@@ -45,7 +44,6 @@ class CompanyHTMxTable(Table):
         sequence = [
             "name",
             "url",
-            "careers_url",
             "careers_urls",
             "hq",
             "posting_count",
@@ -57,10 +55,12 @@ class CompanyHTMxTable(Table):
         fields = [
             "name",
             "url",
-            "careers_url",
+            "careers_urls",
             "hq",
             "posting_count",
             "employees_est",
+            "employees_est_source",
+            "how_found",
             "notes",
         ]
 
@@ -83,7 +83,7 @@ class CompanyHTMxTable(Table):
     def value_careers_urls(self, record: Any) -> str:
         urls = []
         urls.append(record.careers_url)
-        urls += record.careers_urls
+        urls += record.careers_urls or []
         return os.linesep.join(urls)
 
     def render_careers_urls(self, record: Any) -> str:
