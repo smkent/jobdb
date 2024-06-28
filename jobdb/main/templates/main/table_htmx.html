@@ -12,20 +12,28 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <h2>{{ table_title }} ({{ table.rows|length }} rows)</h2>
-  Export as:
-  <a href="{%export_url 'csv' %}">CSV</a> /
-  <a href="{%export_url 'xlsx' %}">Microsoft Excel</a> /
-  <a href="{%export_url 'ods' %}">OpenDocument</a>
-  <br />
-  <br />
-  <form hx-get="{{ table_htmx_route }}"
-        hx-target="div.table-container"
-        hx-swap="outerHTML"
-        hx-indicator=".progress"
-        class="form-inline">
-    {% crispy filter.form %}
-  </form>
+  <div class="container-fluid p-0">
+    <div class="row align-bottom">
+      <div class="col-auto">
+        <h2>{{ table_title }} ({{ table.rows|length }} rows)</h2>
+        Export as:
+        <a href="{%export_url 'csv' %}">CSV</a> /
+        <a href="{%export_url 'xlsx' %}">Microsoft Excel</a> /
+        <a href="{%export_url 'ods' %}">OpenDocument</a>
+        <br />
+        <br />
+      </div>
+      <div class="col">
+        <form hx-get="{{ table_htmx_route }}"
+              hx-target="div.table-container"
+              hx-swap="outerHTML"
+              hx-indicator=".progress"
+              class="form-inline">
+          {% crispy filter.form %}
+        </div>
+      </div>
+    </form>
+  </div>
   <div class="progress">
     <div class="indeterminate"></div>
   </div>

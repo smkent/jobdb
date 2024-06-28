@@ -1,9 +1,13 @@
 from decimal import Decimal
 from typing import Any
 
+from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
+from crispy_forms.helper import FormHelper  # type: ignore
+from crispy_forms.layout import Column, Layout, Row, Submit  # type: ignore
 from django.db.models import Q, QuerySet
-from django.forms import CharField, HiddenInput
-from django_filters import BooleanFilter, CharFilter, FilterSet  # type: ignore
+from django.forms import CharField, Form, HiddenInput
+from django_filters import BooleanFilter, CharFilter  # type: ignore
+from django_filters import FilterSet as BaseFilterSet
 
 from .models import Application, Company, Posting
 
@@ -16,8 +20,33 @@ class HiddenCharFilter(CharFilter):
     field_class = HiddenCharField
 
 
+class FilterSet(BaseFilterSet):
+    def get_form_class(self) -> type[Form]:
+        base_form_class = super().get_form_class()
+
+        class FormClass(base_form_class):  # type: ignore
+            def __init__(self, *args: Any, **kwargs: Any):
+                super().__init__(*args, **kwargs)
+                self.helper = FormHelper(self)
+                layout_items = []
+                print(self.fields)
+                for field_name in self.fields.keys():
+                    layout_items.append(
+                        Column(FloatingField(field_name), css_class="col-auto")
+                    )
+                layout_items.append(
+                    Column(
+                        Submit("submit", "Filter", css_class="col-auto p-3")
+                    )
+                )
+                self.helper.layout = Layout(Row(*layout_items))
+                print(self.helper.layout)
+
+        return FormClass
+
+
 class CompanyFilter(FilterSet):
-    query = CharFilter(method="universal_search", label="")
+    query = CharFilter(method="universal_search", label="Search")
 
     class Meta:
         model = Company
@@ -35,7 +64,7 @@ class CompanyFilter(FilterSet):
 
 
 class PostingFilter(FilterSet):
-    query = CharFilter(method="universal_search", label="")
+    query = CharFilter(method="universal_search", label="Search")
     company = HiddenCharFilter(
         field_name="company__name", lookup_expr="iexact", label=""
     )
@@ -55,15 +84,28 @@ class PostingFilter(FilterSet):
         return queryset.filter(condition)
 
 
+class AllPostingFilter(PostingFilter):
+    is_open = BooleanFilter(
+        field_name="closed", method="filter_open", label="Open"
+    )
+
+    class Meta:
+        model = Posting
+        fields = ["query"]
+
+    def filter_open(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
+        return queryset.filter(closed__isnull=value)
+
+
 class ApplicationFilter(FilterSet):
-    query = CharFilter(method="universal_search", label="")
+    query = CharFilter(method="universal_search", label="Search")
     company = HiddenCharFilter(
         field_name="posting__company__name", lookup_expr="iexact", label=""
     )
     reported = BooleanFilter(
-        field_name="reported",
-        method="filter_reported",
-        label="Reported",
+        field_name="reported", method="filter_reported", label="Reported"
     )
 
     class Meta:
