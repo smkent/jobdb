@@ -11,7 +11,12 @@ from django_filters.views import FilterView  # type: ignore
 from django_tables2 import SingleTableMixin  # type: ignore
 from django_tables2.export import views as export_views  # type: ignore
 
-from .filters import ApplicationFilter, CompanyFilter, PostingFilter
+from .filters import (
+    AllPostingFilter,
+    ApplicationFilter,
+    CompanyFilter,
+    PostingFilter,
+)
 from .forms import UserProfileForm
 from .models import Application, Company, Posting, User
 from .query import companies_with_postings_count, posting_queue_set
@@ -132,7 +137,7 @@ class PostingHTMxTableView(QueueHTMxTableView):
     template_table_title = "All postings"
     template_table_htmx_route = "posting_htmx"
     table_class = PostingHTMxTable
-    filterset_class = PostingFilter
+    filterset_class = AllPostingFilter
     export_name = "postings"
 
     def get_queryset(self) -> QuerySet:
