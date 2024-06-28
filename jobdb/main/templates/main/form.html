@@ -1,0 +1,19 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  {{ form.errors }}
+  <form action="{{ request.path }}" method="post" role="form">
+    {% csrf_token %}
+    <div class="container-sm ms-0 p-0" style="max-width: 600px;">
+      <div class="row">
+        {{ form|crispy }}
+      </div>
+      <div class="row">
+        <div class="d-grid">
+          <input type="submit" value="Save" class="btn btn-primary btn-block p-2">
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}
