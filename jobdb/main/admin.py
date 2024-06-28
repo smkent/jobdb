@@ -136,6 +136,7 @@ class CompanyAdmin(ModelAdmin):
         "created",
     ]
     ordering = ["name"]
+    search_fields = ["name", "url"]
 
     @display(description=Company._meta.get_field("url").verbose_name)
     def url_clickable(self, obj: Company) -> str:
@@ -179,6 +180,7 @@ class PostingAdmin(ModelAdmin):
     list_filter = [PostingClosedFilter]
     ordering = ["company__name", "title", "url"]
     actions = ["mark_applied", "mark_closed"]
+    search_fields = ["company__name", "title", "url"]
 
     @display(description=Company._meta.get_field("name").verbose_name)
     def company_name(self, obj: Company) -> str:
@@ -227,6 +229,11 @@ class ApplicationAdminBase(ModelAdmin):
     ordering = [
         "-applied",
         "user",
+        "posting__company__name",
+        "posting__title",
+        "posting__url",
+    ]
+    search_fields = [
         "posting__company__name",
         "posting__title",
         "posting__url",
