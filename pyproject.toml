@@ -118,5 +118,6 @@ addopts = """\
     --cov-report xml:.pytest_coverage.xml \
     --junitxml=.pytest_results.xml \
 """
+DJANGO_SETTINGS_MODULE = "jobdb.settings.dev"
 
 # vim: ft=cfg
