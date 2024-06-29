@@ -34,6 +34,7 @@ from .tables import (
     PostingHTMxTable,
     QueueHTMxTable,
 )
+from .utils import normalize_posting_url
 
 
 class ExportMixin(export_views.ExportMixin):
@@ -184,6 +185,7 @@ class AddPostingsView(View):
                 self.create_context(form=form, submit_text="Process URLs"),
             )
         urls = form.cleaned_data.get("text", "").splitlines()
+        urls = [normalize_posting_url(u) for u in urls]
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
             formset = formset_factory(self.form_class_2, extra=0)(
