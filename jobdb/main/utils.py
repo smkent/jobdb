@@ -4,7 +4,7 @@ from urllib.parse import ParseResult, urlparse, urlunparse
 
 
 def normalize_posting_url(url: str) -> str:
-    bits = urlparse(url)
+    bits = urlparse(url.strip())
 
     def r(u: ParseResult, **kw: Any) -> ParseResult:
         return u._replace(**kw)

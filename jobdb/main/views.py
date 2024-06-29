@@ -146,6 +146,8 @@ class AddPostingsView(View):
         new_saved_postings = []
         posting_matches = []
         for form in formset:
+            if form.cleaned_data["include"] is False:
+                continue
             if posting := Posting.objects.by_url(  # type: ignore
                 form.cleaned_data["url"]
             ).first():
@@ -186,6 +188,7 @@ class AddPostingsView(View):
             )
         urls = form.cleaned_data.get("text", "").splitlines()
         urls = [normalize_posting_url(u) for u in urls]
+        urls = [u for u in urls if u]
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
             formset = formset_factory(self.form_class_2, extra=0)(
