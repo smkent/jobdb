@@ -55,6 +55,12 @@ class IndexView(BaseView, TemplateView):
     def get_context_data(self, **kwargs: Any) -> Any:
         context = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User)
+        companies = Company.objects.all()
+        companies_with_postings = (
+            companies_with_postings_count()
+            .filter(posting_count__gt=0)
+            .order_by("-posting_count", "name")
+        )
         your_apps = Application.objects.filter(user=self.request.user)
         your_apps_company_count = user_application_companies(self.request.user)
         posting_queue = posting_queue_set(self.request.user, ordered=False)
@@ -72,7 +78,8 @@ class IndexView(BaseView, TemplateView):
         )
         leaderboard_companies = leaderboard_application_companies()
         return context | {
-            "company": Company.objects.all(),
+            "company": companies,
+            "companies_with_postings": companies_with_postings,
             "posting": Posting.objects.all(),
             "posting_open": Posting.objects.filter(closed=None),
             "application": Application.objects.all(),
