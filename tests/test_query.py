@@ -3,6 +3,7 @@ import pytest
 from jobdb.main.models import Company, User
 from jobdb.main.query import (
     leaderboard_application_companies,
+    posting_queue_companies_count,
     posting_queue_set,
 )
 
@@ -34,3 +35,19 @@ def test_companies_with_applications() -> None:
         )
     }
     assert results == {"Initech": 6, "Initrode": 1}
+
+
+@pytest.mark.parametrize(
+    ["username", "expected_counts"],
+    [
+        ("luke", []),
+        ("solo", [("Initech", 1), ("Initrode", 1)]),
+        ("vader", [("Initech", 2), ("Initrode", 1)]),
+    ],
+)
+def test_posting_queue_companies_count(
+    username: str, expected_counts: list[tuple[str, int]]
+) -> None:
+    user = User.objects.get(username=username)
+    response = posting_queue_companies_count(user).values("name", "count")
+    assert list(response.values_list("name", "count")) == expected_counts

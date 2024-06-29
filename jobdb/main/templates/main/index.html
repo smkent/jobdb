@@ -21,7 +21,7 @@
                 <ul>
                   {% for c in posting_queue_companies|slice:"0:10" %}
                     <li>
-                      <a href="{% url 'queue_htmx' %}?company={{ c.company__name }}">{{c.company__name}}</a>
+                      <a href="{% url 'queue_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
                       ({{ c.count }} postings)</li>
                   {% endfor %}
                 </ul>
@@ -34,7 +34,7 @@
                 <ul>
                   {% for c in your_apps_company_count|slice:"0:10" %}
                     <li>
-                      <a href="{% url 'application_htmx' %}?company={{ c.company }}">{{c.company }}</a>
+                      <a href="{% url 'application_htmx' %}?company={{ c.company }}">{{ c.company }}</a>
                       ({{ c.count }} applications)</li>
                   {% endfor %}
                 </ul>

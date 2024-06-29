@@ -24,7 +24,9 @@ from .models import Application, Company, Posting, User
 from .query import (
     companies_with_postings_count,
     leaderboard_application_companies,
+    posting_queue_companies_count,
     posting_queue_set,
+    user_application_companies,
 )
 from .tables import (
     ApplicationHTMxTable,
@@ -54,16 +56,11 @@ class IndexView(BaseView, TemplateView):
         context = super().get_context_data(**kwargs)
         assert isinstance(self.request.user, User)
         your_apps = Application.objects.filter(user=self.request.user)
-        your_apps_company_count = (
-            your_apps.annotate(company=F("posting__company__name"))
-            .values("company")
-            .annotate(count=Count("company"))
-            .order_by("-count", "company")
-        )
+        your_apps_company_count = user_application_companies(self.request.user)
         posting_queue = posting_queue_set(self.request.user, ordered=False)
-        posting_queue_companies = posting_queue.values(
-            "company__name"
-        ).annotate(count=Count("pk"))
+        posting_queue_companies = posting_queue_companies_count(
+            self.request.user
+        )
         unreported_apps_count = (
             your_apps.count()
             - your_apps.filter(reported__isnull=False).count()
@@ -83,9 +80,7 @@ class IndexView(BaseView, TemplateView):
             "your_apps_company_count": your_apps_company_count,
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
-            "posting_queue_companies": posting_queue_companies.order_by(
-                "-count", "company__name"
-            ),
+            "posting_queue_companies": posting_queue_companies,
             "leaderboard": leaderboard,
             "leaderboard_companies": leaderboard_companies,
         }
