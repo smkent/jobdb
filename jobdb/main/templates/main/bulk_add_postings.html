@@ -1,0 +1,68 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  {% if form_title %}
+    <h2>{{ form_title }}</h2>
+    <br />
+  {% endif %}
+
+  {% if posting_matches %}
+    <h4>Existing posting matches</h4>
+    <ul>
+      {% for k, v in posting_matches.items %}
+        <li><a href="{% url 'personal:main_posting_change' v.pk %}" target="_blank">{{ v }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if new_saved_postings %}
+    <h4>New postings saved</h4>
+    <ul>
+      {% for posting in new_saved_postings %}
+        <li><a href="{% url 'personal:main_posting_change' posting.pk %}" target="_blank">{{ posting }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if formset %}
+    <h4>New postings</h4>
+    <form method="post" action="{{ request.path }}">
+      <div class="container ms-0 p-0">
+        <div class="row">
+          <div class="col-auto">
+            <div id="div_id_company" class="form-floating mb-4">
+              <select name="company" class="form-select" placeholder="company" id="id_company">
+                <option value="">---------</option>
+                {% for c in companies %}
+                  <option value="{{ c.pk }}" {% if company == c.pk %} selected=""{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+              </select>
+              <label for="id_company">Company</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-auto">
+            {{ formset.management_data|crispy }}
+            {% crispy formset helper %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="d-grid">
+              <input type="submit" value="{{ submit_text|default:"Save" }}" class="btn btn-primary btn-block p-2">
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="d-grid">
+              <a href="{{ request.path }}" class="btn btn-outline-primary p-2">Return to URLs form</a><br />
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  {% else %}
+    <a href="{{ request.path }}" class="btn btn-primary p-2">Return to URLs form</a><br />
+  {% endif %}
+{% endblock %}

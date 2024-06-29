@@ -29,7 +29,6 @@ class FilterSet(BaseFilterSet):
                 super().__init__(*args, **kwargs)
                 self.helper = FormHelper(self)
                 layout_items = []
-                print(self.fields)
                 for field_name in self.fields.keys():
                     layout_items.append(
                         Column(FloatingField(field_name), css_class="col-auto")
@@ -40,7 +39,6 @@ class FilterSet(BaseFilterSet):
                     )
                 )
                 self.helper.layout = Layout(Row(*layout_items))
-                print(self.helper.layout)
 
         return FormClass
 
