@@ -23,16 +23,23 @@
         <br />
         <br />
       </div>
-      <div class="col">
+      <div class="col-auto">
         <form hx-get="{{ table_htmx_route }}"
               hx-target="div.table-container"
               hx-swap="outerHTML"
               hx-indicator=".progress"
               class="form-inline">
           {% crispy filter.form %}
-        </div>
+        </form>
       </div>
-    </form>
+      {% if action_links %}
+        <div class="col-auto">
+          {% for text, link in action_links %}
+            <a href="{{ link }}" class="btn btn-outline-primary p-3">{{ text }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
   </div>
   <div class="progress">
     <div class="indeterminate"></div>

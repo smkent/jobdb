@@ -228,9 +228,11 @@ class BaseHTMxTableView(BaseView, ExportMixin, SingleTableMixin, FilterView):
     template_table_title = "Untitled table"
     template_table_htmx_route = ""
     paginate_by = 15
+    action_links: Sequence[tuple[str, str]] | None = None
 
     def get_context_data(self, **kwargs: Any) -> Any:
         return super().get_context_data(**kwargs) | {
+            "action_links": self.action_links or [],
             "table_title": self.template_table_title,
             "table_htmx_route": reverse(self.template_table_htmx_route),
         }
@@ -248,6 +250,7 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     filterset_class = CompanyFilter
     queryset = companies_with_postings_count()
     export_name = "companies"
+    action_links = [("Add company", reverse_lazy("personal:main_company_add"))]
 
 
 class QueueHTMxTableView(BaseHTMxTableView):
@@ -256,6 +259,7 @@ class QueueHTMxTableView(BaseHTMxTableView):
     table_class = QueueHTMxTable
     filterset_class = PostingFilter
     export_name = "postings_queue"
+    action_links = [("Add postings", reverse_lazy("add_postings"))]
 
     def get_queryset(self) -> QuerySet:
         return posting_queue_set(self.request.user)
