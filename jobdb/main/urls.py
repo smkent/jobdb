@@ -22,8 +22,8 @@ urlpatterns = [
     ),
     path("queue", views.QueueHTMxTableView.as_view(), name="queue_htmx"),
     path(
-        "tools/bulk_add_postings",
-        views.AddPostingsBulkTool.as_view(),
-        name="bulk_add_postings_tool",
+        "postings/add",
+        views.AddPostingsView.as_view(),
+        name="add_postings",
     ),
 ]

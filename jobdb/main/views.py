@@ -102,7 +102,7 @@ class BaseModelFormView(BaseView, FormView):
         )
 
 
-class AddPostingsBulkTool(View):
+class AddPostingsView(View):
     form_class_1 = URLTextareaForm
     form_class_2 = AddPostingForm
     template_name = "main/bulk_add_postings.html"
@@ -157,7 +157,7 @@ class AddPostingsBulkTool(View):
         )
 
     def create_context(self, **context: Any) -> dict[str, Any]:
-        context.setdefault("form_title", "Bulk add postings")
+        context.setdefault("form_title", "Add postings")
         if formset := context.get("formset"):
             helper = formset[0].helper
             helper.form_tag = False

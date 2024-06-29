@@ -39,6 +39,7 @@
                   <br />
 
                   <a href="{% url 'queue_htmx' %}" class="link-info">Postings Queue</a> |
+                  <a href="{% url 'add_postings' %}" class="link-info">Add postings</a> |
                   <a href="{% url 'personal:index' %}" class="link-info">Database Portal</a>
                   {% if request.user.is_staff %}
                     / <a href="{% url 'admin:index' %}" class="link-info">Admin</a>
