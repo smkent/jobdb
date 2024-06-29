@@ -186,6 +186,7 @@ class AddPostingsView(View):
             )
         urls = form.cleaned_data.get("text", "").splitlines()
         urls = [normalize_posting_url(u) for u in urls]
+        urls = [u for u in urls if u]
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
             formset = formset_factory(self.form_class_2, extra=0)(
