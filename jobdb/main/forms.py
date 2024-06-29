@@ -1,8 +1,9 @@
 from functools import cached_property
+from typing import Any
 
 from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
 from crispy_forms.helper import FormHelper  # type: ignore
-from crispy_forms.layout import Column, Layout, Row  # type: ignore
+from crispy_forms.layout import Column, Field, Layout, Row  # type: ignore
 from django.forms import CharField, Form, HiddenInput, ModelForm, Textarea
 
 from .models import Posting, User
@@ -24,6 +25,10 @@ class AddPostingForm(ModelForm):
         model = Posting
         fields = ["url", "title", "location", "wa_jurisdiction"]
 
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.fields["url"].widget.attrs["readonly"] = True
+
     @cached_property
     def helper(self) -> FormHelper:
         _helper = FormHelper(self)
@@ -35,5 +40,15 @@ class AddPostingForm(ModelForm):
                     css_class="col-auto",
                 )
             )
+            if field_name in "url":
+                layout_items.append(
+                    Column(
+                        Field(
+                            "url",
+                            template="main/form_url_open_link_widget.html",
+                        ),
+                        css_class="col-auto",
+                    )
+                )
         _helper.layout = Layout(Row(*layout_items))
         return _helper
