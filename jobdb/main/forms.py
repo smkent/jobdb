@@ -5,6 +5,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
 from crispy_forms.helper import FormHelper  # type: ignore
 from crispy_forms.layout import Column, Field, Layout, Row  # type: ignore
 from django.forms import (
+    BooleanField,
     CharField,
     Form,
     HiddenInput,
@@ -28,9 +29,18 @@ class URLTextareaForm(Form):
 
 
 class AddPostingForm(ModelForm):
+    include = BooleanField(label="", required=False, initial=True)
+
     class Meta:
         model = Posting
-        fields = ["url", "title", "location", "wa_jurisdiction", "notes"]
+        fields = [
+            "include",
+            "url",
+            "title",
+            "location",
+            "wa_jurisdiction",
+            "notes",
+        ]
         widgets = {"notes": TextInput}
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -42,6 +52,14 @@ class AddPostingForm(ModelForm):
         _helper = FormHelper(self)
         layout_items = []
         for field_name in self.fields.keys():
+            if field_name == "include":
+                layout_items.append(
+                    Column(
+                        Field(field_name, css_class="p-3"),
+                        css_class="col-auto",
+                    )
+                )
+                continue
             layout_items.append(
                 Column(
                     FloatingField(field_name),
@@ -60,3 +78,14 @@ class AddPostingForm(ModelForm):
                 )
         _helper.layout = Layout(Row(*layout_items))
         return _helper
+
+    def is_valid(self) -> bool:
+        if self.cleaned_data.get("include") is False:
+            self._errors = {}  # type: ignore
+            return True
+        return super().is_valid()
+
+    def save(self, *args: Any, **kwargs: Any) -> Posting:
+        if self.cleaned_data.get("include") is False:
+            raise Exception("This posting is excluded and cannot be saved")
+        return super().save(*args, **kwargs)  # type: ignore

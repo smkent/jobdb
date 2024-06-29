@@ -146,6 +146,8 @@ class AddPostingsView(View):
         new_saved_postings = []
         posting_matches = []
         for form in formset:
+            if form.cleaned_data["include"] is False:
+                continue
             if posting := Posting.objects.by_url(  # type: ignore
                 form.cleaned_data["url"]
             ).first():
