@@ -128,12 +128,17 @@ class AddPostingsBulkTool(View):
         if request.POST.get("tool") == "urls_submitted":
             return self.process_raw_urls(request)
         formset = formset_factory(self.form_class_2)(request.POST)
-        company = Company.objects.get(pk=request.POST["company"])
-        if not formset.is_valid():
+        try:
+            company = Company.objects.get(pk=request.POST["company"])
+        except (ValueError, Company.DoesNotExist):
+            company = None
+        if not company or not formset.is_valid():
             return render(
                 request,
                 self.template_name,
-                self.create_context(formset=formset, company=company.pk),
+                self.create_context(
+                    formset=formset, company=company.pk if company else None
+                ),
             )
         new_saved_postings = []
         posting_matches = []

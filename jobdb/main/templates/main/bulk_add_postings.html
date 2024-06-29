@@ -43,7 +43,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-auto">
+          <div class="col">
             {{ formset.management_data|crispy }}
             {% crispy formset helper %}
           </div>
@@ -56,7 +56,7 @@
           </div>
           <div class="col-sm-4">
             <div class="d-grid">
-              <a href="{{ request.path }}" class="btn btn-outline-primary p-2">Return to URLs form</a><br />
+              <a href="{{ request.path }}" class="btn btn-outline-primary p-2">Start over</a><br />
             </div>
           </div>
         </div>
