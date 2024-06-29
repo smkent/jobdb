@@ -101,12 +101,29 @@ class QueueHTMxTable(Table):
     job_board_urls = Column(visible=False)
     url = Column(attrs={"th": {"style": "width: 500px;"}})
     title = Column(attrs={"th": {"style": "width: 400px;"}})
+    created = Column(
+        verbose_name="Added", attrs={"th": {"style": "width: 200px;"}}
+    )
 
     class Meta:
         model = Posting
         template_name = "main/bootstrap_htmx.html"
-        sequence = ["company__name", "job_board_urls", "url", "title", "notes"]
-        fields = ["company__name", "job_board_urls", "url", "title", "notes"]
+        sequence = [
+            "company__name",
+            "job_board_urls",
+            "url",
+            "title",
+            "created",
+            "notes",
+        ]
+        fields = [
+            "company__name",
+            "job_board_urls",
+            "url",
+            "title",
+            "created",
+            "notes",
+        ]
 
     def render_url(self, value: str, record: Any) -> str:
         return format_html(
@@ -144,6 +161,9 @@ class QueueHTMxTable(Table):
 
     def value_company__name(self, value: str) -> str:
         return value
+
+    def render_created(self, value: datetime, record: Any) -> str:
+        return localize(value.date())
 
 
 class PostingHTMxTable(QueueHTMxTable):
