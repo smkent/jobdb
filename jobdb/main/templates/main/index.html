@@ -59,6 +59,9 @@
           (none)
         {% endif %}<br />
         <br />
+        <h2>Tools</h2>
+        <a href="{% url 'bulk_add_postings_tool' %}">Bulk add posting URLs</a><br />
+        <br />
       </div>
       <div class="col">
         <h2>Total Data</h2>
@@ -77,7 +80,6 @@
             {% endfor %}
           </ul>
         {% endif %}
-
         <div class="container-fluid p-0">
           <div class="row">
             {% if leaderboard_companies.count %}
@@ -95,7 +97,6 @@
             {% endif %}
           </div>
         </div>
-
       </div>
     </div>
   </div>

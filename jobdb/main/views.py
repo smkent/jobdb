@@ -1,10 +1,12 @@
-from typing import Any
+from typing import Any, Sequence
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, Count, F, Max, Model, QuerySet, When
-from django.forms import ModelForm
-from django.http import HttpResponse
+from django.forms import ModelForm, formset_factory
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django_filters.views import FilterView  # type: ignore
@@ -17,7 +19,7 @@ from .filters import (
     CompanyFilter,
     PostingFilter,
 )
-from .forms import UserProfileForm
+from .forms import AddPostingForm, URLTextareaForm, UserProfileForm
 from .models import Application, Company, Posting, User
 from .query import (
     companies_with_postings_count,
@@ -103,6 +105,106 @@ class BaseModelFormView(BaseView, FormView):
         return (form_class or self.get_form_class())(
             self.request.POST or None, instance=self.get_instance()
         )
+
+
+class AddPostingsBulkTool(View):
+    form_class_1 = URLTextareaForm
+    form_class_2 = AddPostingForm
+    template_name = "main/bulk_add_postings.html"
+
+    def get(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
+        form = self.form_class_1()
+        return render(
+            request,
+            "main/form.html",
+            self.create_context(form=form, submit_text="Process URLs"),
+        )
+
+    def post(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponse:
+        if request.POST.get("tool") == "urls_submitted":
+            return self.process_raw_urls(request)
+        formset = formset_factory(self.form_class_2)(request.POST)
+        company = Company.objects.get(pk=request.POST["company"])
+        if not formset.is_valid():
+            return render(
+                request,
+                self.template_name,
+                self.create_context(formset=formset, company=company.pk),
+            )
+        new_saved_postings = []
+        posting_matches = []
+        for form in formset:
+            if posting := Posting.objects.by_url(  # type: ignore
+                form.cleaned_data["url"]
+            ).first():
+                posting_matches.append(posting)
+                continue
+            form.instance.company = company
+            obj = form.save()
+            new_saved_postings.append(obj)
+        return render(
+            request,
+            self.template_name,
+            self.create_context(
+                posting_matches=posting_matches,
+                new_saved_postings=new_saved_postings,
+                company=company.pk,
+            ),
+        )
+
+    def create_context(self, **context: Any) -> dict[str, Any]:
+        context.setdefault("form_title", "Bulk add postings")
+        if formset := context.get("formset"):
+            helper = formset[0].helper
+            helper.form_tag = False
+            context["helper"] = helper
+            context.setdefault(
+                "companies",
+                Company.objects.order_by("name"),
+            )
+        return context
+
+    def process_raw_urls(self, request: HttpRequest) -> HttpResponse:
+        form = self.form_class_1(request.POST)
+        if not form.is_valid():
+            return render(
+                request,
+                "main/form.html",
+                self.create_context(form=form, submit_text="Process URLs"),
+            )
+        urls = form.cleaned_data.get("text", "").splitlines()
+        new_urls, posting_matches = self.check_duplicate_urls(urls)
+        if new_urls:
+            formset = formset_factory(self.form_class_2, extra=0)(
+                initial=[{"url": url} for url in new_urls]
+            )
+        else:
+            formset = None
+        return render(
+            request,
+            self.template_name,
+            self.create_context(
+                posting_matches=posting_matches,
+                new_urls=new_urls,
+                formset=formset,
+            ),
+        )
+
+    def check_duplicate_urls(
+        self, urls: Sequence[str]
+    ) -> tuple[set[str], dict[str, Posting]]:
+        new_urls = set()
+        posting_matches = {}
+        for url in urls:
+            if postings := Posting.objects.by_url(url):  # type: ignore
+                posting_matches[url] = postings.first()
+            else:
+                new_urls.add(url)
+        return new_urls, posting_matches
 
 
 class UserProfileFormView(BaseModelFormView):
