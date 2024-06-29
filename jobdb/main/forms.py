@@ -4,7 +4,14 @@ from typing import Any
 from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
 from crispy_forms.helper import FormHelper  # type: ignore
 from crispy_forms.layout import Column, Field, Layout, Row  # type: ignore
-from django.forms import CharField, Form, HiddenInput, ModelForm, Textarea
+from django.forms import (
+    CharField,
+    Form,
+    HiddenInput,
+    ModelForm,
+    Textarea,
+    TextInput,
+)
 
 from .models import Posting, User
 
@@ -17,13 +24,14 @@ class UserProfileForm(ModelForm):
 
 class URLTextareaForm(Form):
     tool = CharField(widget=HiddenInput, initial="urls_submitted")
-    text = CharField(label="List of URLs", widget=Textarea)
+    text = CharField(label="URL(s), one per line", widget=Textarea)
 
 
 class AddPostingForm(ModelForm):
     class Meta:
         model = Posting
-        fields = ["url", "title", "location", "wa_jurisdiction"]
+        fields = ["url", "title", "location", "wa_jurisdiction", "notes"]
+        widgets = {"notes": TextInput}
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
