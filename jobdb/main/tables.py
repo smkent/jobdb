@@ -32,11 +32,14 @@ class CompanyHTMxTable(Table):
         attrs={"th": {"style": "width: 200px;"}},
     )
     employees_est = Column(
-        verbose_name="Est. # employees",
+        verbose_name="# employees",
         attrs={"th": {"style": "width: 200px;"}},
     )
     employees_est_source = Column(visible=False)
     how_found = Column(visible=False)
+    created = Column(
+        verbose_name="Added", attrs={"th": {"style": "width: 200px;"}}
+    )
 
     class Meta:
         model = Company
@@ -50,6 +53,7 @@ class CompanyHTMxTable(Table):
             "employees_est",
             "employees_est_source",
             "how_found",
+            "created",
             "notes",
         ]
         fields = [
@@ -61,6 +65,7 @@ class CompanyHTMxTable(Table):
             "employees_est",
             "employees_est_source",
             "how_found",
+            "created",
             "notes",
         ]
 
@@ -94,6 +99,9 @@ class CompanyHTMxTable(Table):
         for url in value.strip().split(os.linesep):
             rendered_urls.append(format_html(f'<a href="{url}">{url}</a>'))
         return format_html("<br />".join(rendered_urls))
+
+    def render_created(self, value: datetime, record: Any) -> str:
+        return localize(value.date())
 
 
 class QueueHTMxTable(Table):
