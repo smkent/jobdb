@@ -212,7 +212,7 @@ class PostingAdmin(ModelAdmin):
         assert isinstance(request.user, User)
         for posting in posting_with_applications(
             user=request.user, queryset=queryset
-        ).filter(has_application__isnull=True):
+        ).filter(has_application=False):
             application = Application(posting=posting, user=request.user)
             application.save()
 
