@@ -20,6 +20,11 @@ urlpatterns = [
         views.ApplicationHTMxTableView.as_view(),
         name="application_htmx",
     ),
+    path(
+        "applications/by_company",
+        views.ApplicationCompanyCountHTMxTableView.as_view(),
+        name="application_by_company_htmx",
+    ),
     path("queue", views.QueueHTMxTableView.as_view(), name="queue_htmx"),
     path(
         "queue/by_company",

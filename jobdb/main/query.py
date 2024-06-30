@@ -51,12 +51,22 @@ def companies_with_postings_count() -> QuerySet:
 
 
 def user_application_companies(user: User) -> QuerySet:
+    queryset = Company.objects.all()
+    assert isinstance(queryset, QuerySet)
     return (
-        Application.objects.filter(user=user)
-        .annotate(company=F("posting__company__name"))
-        .values("company")
-        .annotate(count=Count("company"))
-        .order_by("-count", "company")
+        queryset.annotate(
+            count=Subquery(
+                posting_with_applications(user)
+                .filter(has_application=True)
+                .filter(company=OuterRef("pk"))
+                .order_by()
+                .values("company")
+                .annotate(count=Count("pk"))
+                .values("count")
+            ),
+        )
+        .filter(count__isnull=False)
+        .order_by("-count", "name")
     )
 
 
