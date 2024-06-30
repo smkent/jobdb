@@ -103,6 +103,13 @@ class CompanyHTMxTable(Table):
     def render_created(self, value: datetime, record: Any) -> str:
         return localize(value.date())
 
+    def render_posting_count(self, value: Any, record: Any) -> str:
+        url = reverse("posting_htmx") + f"?company={record.name}"
+        return format_html(f'<a href="{url}">{value}</a>')
+
+    def value_posting_count(self, value: Any) -> Any:
+        return value
+
 
 class QueueHTMxTable(Table):
     company__name = Column(attrs={"th": {"style": "width: 200px;"}})
