@@ -21,7 +21,7 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
         user=user, queryset=Posting.objects.filter(closed=None)
     ).filter(has_application=False)
     if ordered:
-        qs = qs.order_by("company__name", "pk")
+        qs = qs.order_by("-company__priority", "company__name", "pk")
     return qs
 
 
@@ -40,7 +40,7 @@ def posting_queue_companies_count(user: User) -> QuerySet:
             ),
         )
         .filter(count__isnull=False)
-        .order_by("-count", "name")
+        .order_by("-priority", "-count", "name")
     )
 
 

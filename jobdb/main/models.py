@@ -30,9 +30,9 @@ from .utils import url_to_text
 
 
 class Priority(IntegerChoices):
-    HIGH = 100, "High"
-    NORMAL = 200, "Normal"
-    LOW = 300, "Low"
+    HIGH = 1000, "High"
+    NORMAL = 500, "Normal"
+    LOW = 100, "Low"
 
 
 class User(AbstractUser):

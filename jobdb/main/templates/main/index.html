@@ -20,9 +20,11 @@
                 <h4><a href="{% url 'queue_by_company_htmx' %}">Top available postings</a></h4>
                 <ul>
                   {% for c in posting_queue_companies|slice:"0:10" %}
-                    <li>
+                    <li><span class="company-priority-{{ c.priority }}">
                       <a href="{% url 'queue_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
-                      ({{ c.count }} postings)</li>
+                      ({{ c.count }} postings, {{c.priority}})
+                    </span>
+                    </li>
                   {% endfor %}
                 </ul>
                 <br />
