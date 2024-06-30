@@ -133,8 +133,10 @@ class CompanyAdmin(ModelAdmin):
         "name",
         "url_clickable",
         "careers_url_clickable",
+        "priority",
         "created",
     ]
+    list_filter = ["priority"]
     ordering = ["name"]
     search_fields = ["name", "url"]
 

@@ -11,6 +11,17 @@ from django_tables2 import Table
 
 from .models import Application, Company, Posting
 
+COMPANY_ROW_ATTRS = {
+    "class": lambda record: f"company-priority-{record.priority}"
+}
+
+POSTING_ROW_ATTRS = {
+    "class": lambda record: (
+        f"company-priority-{record.company.priority} "
+        + ("posting-closed" if record.closed else "")
+    )
+}
+
 
 class DateTimeColumn(BaseDateTimeColumn):
     def render(self, value: datetime | None, *args: Any, **kwargs: Any) -> Any:
@@ -28,6 +39,7 @@ class QueueCompanyCountHTMxTable(Table):
         template_name = "main/bootstrap_htmx.html"
         sequence = ["name", "count"]
         fields = ["name", "count"]
+        row_attrs = COMPANY_ROW_ATTRS
 
     def render_name(self, value: str, record: Any) -> str:
         portal_url = reverse("personal:main_company_change", args=(record.pk,))
@@ -71,7 +83,7 @@ class ApplicationCompanyCountHTMxTable(Table):
 
 class CompanyHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
-    hq = Column(attrs={"th": {"style": "width: 200px;"}})
+    hq = Column(visible=False)
     posting_count = Column(
         verbose_name="Postings", attrs={"th": {"style": "width: 120px;"}}
     )
@@ -90,6 +102,7 @@ class CompanyHTMxTable(Table):
     created = Column(
         verbose_name="Added", attrs={"th": {"style": "width: 200px;"}}
     )
+    priority = Column(attrs={"th": {"style": "width: 200px;"}})
 
     class Meta:
         model = Company
@@ -104,6 +117,7 @@ class CompanyHTMxTable(Table):
             "employees_est_source",
             "how_found",
             "created",
+            "priority",
             "notes",
         ]
         fields = [
@@ -116,8 +130,10 @@ class CompanyHTMxTable(Table):
             "employees_est_source",
             "how_found",
             "created",
+            "priority",
             "notes",
         ]
+        row_attrs = COMPANY_ROW_ATTRS
 
     def render_url(self, value: str, record: Any) -> str:
         return format_html(
@@ -178,17 +194,20 @@ class QueueHTMxTable(Table):
             "job_board_urls",
             "url",
             "title",
+            "company__priority",
             "created",
             "notes",
         ]
         fields = [
             "company__name",
+            "company__priority",
             "job_board_urls",
             "url",
             "title",
             "created",
             "notes",
         ]
+        row_attrs = POSTING_ROW_ATTRS
 
     def render_url(self, value: str, record: Any) -> str:
         return format_html(
@@ -232,16 +251,14 @@ class QueueHTMxTable(Table):
 
 
 class PostingHTMxTable(QueueHTMxTable):
-    closed = Column(
-        verbose_name="Closed",
-        attrs={"th": {"style": "width: 100px;"}},
-    )
+    closed = Column(verbose_name="Closed", visible=False)
     applied = DateTimeColumn(
         attrs={"th": {"style": "width: 150px;"}},
     )
     reported = DateTimeColumn(attrs={"th": {"style": "width: 150px;"}})
     location = Column(visible=False)
     wa_jurisdiction = Column(visible=False)
+    notes = Column(visible=False)
 
     class Meta:
         model = Posting
@@ -251,7 +268,7 @@ class PostingHTMxTable(QueueHTMxTable):
             "job_board_urls",
             "url",
             "title",
-            "closed",
+            "company__priority",
             "location",
             "wa_jurisdiction",
             "applied",
@@ -260,6 +277,7 @@ class PostingHTMxTable(QueueHTMxTable):
         ]
         fields = [
             "company__name",
+            "company__priority",
             "job_board_urls",
             "url",
             "title",
@@ -270,9 +288,7 @@ class PostingHTMxTable(QueueHTMxTable):
             "reported",
             "notes",
         ]
-        row_attrs = {
-            "class": lambda record: ("posting-closed" if record.closed else "")
-        }
+        row_attrs = POSTING_ROW_ATTRS
 
     def render_closed(self, value: Any) -> Any:
         return "Yes" if value else ()
