@@ -37,8 +37,8 @@ class QueueCompanyCountHTMxTable(Table):
     class Meta:
         model = Company
         template_name = "main/bootstrap_htmx.html"
-        sequence = ["name", "count"]
-        fields = ["name", "count"]
+        sequence = ["name", "count", "priority"]
+        fields = ["name", "count", "priority"]
         row_attrs = COMPANY_ROW_ATTRS
 
     def render_name(self, value: str, record: Any) -> str:
