@@ -6,7 +6,7 @@
       <div class="col">
         <h2>Your Applications</h2>
         <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a>
-        ({{ posting_queue_companies.count }} companies)<br />
+        (<a href="{% url 'queue_by_company_htmx' %}">{{ posting_queue_companies.count }} companies</a>)<br />
         <a href="{% url 'application_htmx' %}">Your applications: <b>{{ your_apps.count }}</b></a>
         {% if unreported_apps_count %}
           (<a href="{% url 'application_htmx' %}?reported=false"><b>{{ unreported_apps_count }}</b> unreported</a>)
@@ -17,7 +17,7 @@
           <div class="row">
             {% if posting_queue_companies.count %}
               <div class="col">
-                <h4>Top available postings</h4>
+                <h4><a href="{% url 'queue_by_company_htmx' %}">Top available postings</a></h4>
                 <ul>
                   {% for c in posting_queue_companies|slice:"0:10" %}
                     <li>

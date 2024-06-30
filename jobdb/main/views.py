@@ -32,6 +32,7 @@ from .tables import (
     ApplicationHTMxTable,
     CompanyHTMxTable,
     PostingHTMxTable,
+    QueueCompanyCountHTMxTable,
     QueueHTMxTable,
 )
 from .utils import normalize_posting_url
@@ -256,6 +257,17 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     queryset = companies_with_postings_count()
     export_name = "companies"
     action_links = [("Add company", reverse_lazy("personal:main_company_add"))]
+
+
+class QueueCompanyCountHTMxTableView(BaseHTMxTableView):
+    template_table_title = "Postings queue count by company"
+    template_table_htmx_route = "queue_by_company_htmx"
+    table_class = QueueCompanyCountHTMxTable
+    filterset_class = CompanyFilter
+    export_name = "postings_queue_by_company_count"
+
+    def get_queryset(self) -> QuerySet:
+        return posting_queue_companies_count(self.request.user)
 
 
 class QueueHTMxTableView(BaseHTMxTableView):

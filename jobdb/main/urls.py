@@ -22,6 +22,11 @@ urlpatterns = [
     ),
     path("queue", views.QueueHTMxTableView.as_view(), name="queue_htmx"),
     path(
+        "queue/by_company",
+        views.QueueCompanyCountHTMxTableView.as_view(),
+        name="queue_by_company_htmx",
+    ),
+    path(
         "postings/add",
         views.AddPostingsView.as_view(),
         name="add_postings",
