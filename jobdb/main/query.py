@@ -21,7 +21,7 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
         user=user, queryset=Posting.objects.filter(closed=None)
     ).filter(has_application=False)
     if ordered:
-        qs = qs.order_by("company__name", "title", "url")
+        qs = qs.order_by("company__name", "pk")
     return qs
 
 

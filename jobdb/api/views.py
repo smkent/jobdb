@@ -93,7 +93,7 @@ class PostingQueueViewSet(BasePostingViewSet, ListModelMixin):
 
     def get_queryset(self) -> QuerySet:
         assert isinstance(self.request.user, User)
-        return posting_queue_set(self.request.user)
+        return posting_queue_set(self.request.user, ordered=True)
 
 
 class BaseApplicationViewSet(APIViewSet):
