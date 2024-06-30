@@ -22,7 +22,7 @@
                   {% for c in posting_queue_companies|slice:"0:10" %}
                     <li><span class="company-priority-{{ c.priority }}">
                       <a href="{% url 'queue_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
-                      ({{ c.count }} postings, {{c.priority}})
+                      ({{ c.count }} postings)
                     </span>
                     </li>
                   {% endfor %}
