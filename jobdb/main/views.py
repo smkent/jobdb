@@ -29,6 +29,7 @@ from .query import (
     user_application_companies,
 )
 from .tables import (
+    ApplicationCompanyCountHTMxTable,
     ApplicationHTMxTable,
     CompanyHTMxTable,
     PostingHTMxTable,
@@ -268,6 +269,17 @@ class QueueCompanyCountHTMxTableView(BaseHTMxTableView):
 
     def get_queryset(self) -> QuerySet:
         return posting_queue_companies_count(self.request.user)
+
+
+class ApplicationCompanyCountHTMxTableView(BaseHTMxTableView):
+    template_table_title = "Application count by company"
+    template_table_htmx_route = "application_by_company_htmx"
+    table_class = ApplicationCompanyCountHTMxTable
+    filterset_class = CompanyFilter
+    export_name = "applications_queue_by_company_count"
+
+    def get_queryset(self) -> QuerySet:
+        return user_application_companies(self.request.user)
 
 
 class QueueHTMxTableView(BaseHTMxTableView):

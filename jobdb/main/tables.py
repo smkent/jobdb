@@ -44,6 +44,31 @@ class QueueCompanyCountHTMxTable(Table):
         return value
 
 
+class ApplicationCompanyCountHTMxTable(Table):
+    name = Column(attrs={"th": {"style": "width: 200px;"}})
+    count = Column(verbose_name="Applications")
+
+    class Meta:
+        model = Company
+        template_name = "main/bootstrap_htmx.html"
+        sequence = ["name", "count"]
+        fields = ["name", "count"]
+
+    def render_name(self, value: str, record: Any) -> str:
+        portal_url = reverse("personal:main_company_change", args=(record.pk,))
+        return format_html(f'<a href="{portal_url}">{value}</a>')
+
+    def value_name(self, value: str) -> str:
+        return value
+
+    def render_count(self, value: Any, record: Any) -> str:
+        url = reverse("queue_htmx") + f"?company={record.name}"
+        return format_html(f'<a href="{url}">{value}</a>')
+
+    def value_count(self, value: Any) -> Any:
+        return value
+
+
 class CompanyHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
     hq = Column(attrs={"th": {"style": "width: 200px;"}})
