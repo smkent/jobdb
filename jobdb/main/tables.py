@@ -74,7 +74,7 @@ class ApplicationCompanyCountHTMxTable(Table):
         return value
 
     def render_count(self, value: Any, record: Any) -> str:
-        url = reverse("queue_htmx") + f"?company={record.name}"
+        url = reverse("application_htmx") + f"?company={record.name}"
         return format_html(f'<a href="{url}">{value}</a>')
 
     def value_count(self, value: Any) -> Any:
