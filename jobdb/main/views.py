@@ -267,7 +267,7 @@ class QueueHTMxTableView(BaseHTMxTableView):
     action_links = [("Add postings", reverse_lazy("add_postings"))]
 
     def get_queryset(self) -> QuerySet:
-        return posting_queue_set(self.request.user)
+        return posting_queue_set(self.request.user, ordered=True)
 
 
 class PostingHTMxTableView(QueueHTMxTableView):
