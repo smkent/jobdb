@@ -29,6 +29,12 @@ from .fields import AppliedDateField, URLArray
 from .utils import url_to_text
 
 
+class Priority(IntegerChoices):
+    HIGH = 100, "High"
+    NORMAL = 200, "Normal"
+    LOW = 300, "Low"
+
+
 class User(AbstractUser):
     phone: CharField = CharField("Phone number", max_length=10, blank=True)
     linkedin: URLField = URLField(
@@ -102,6 +108,11 @@ class Company(TimeStampedModel):
         blank=True,
         verbose_name="How Found",
         help_text="How the company was originally found",
+    )
+    priority: IntegerField = IntegerField(
+        choices=Priority.choices,
+        default=Priority.NORMAL,
+        verbose_name="Priority",
     )
     notes: TextField = TextField(blank=True, verbose_name="Notes")
 
