@@ -317,6 +317,10 @@ class ApplicationPortalAdmin(ApplicationAdminBase):
         kwargs = super().get_resource_kwargs(request, *args, **kwargs)
         return kwargs | {"user": request.user}
 
+    def get_export_filename(self, *args: Any, **kwargs: Any) -> str:
+        default_file_name = super().get_export_filename(*args, **kwargs)
+        return f"Personal-{default_file_name}"
+
 
 @register(Application)
 class ApplicationAdmin(ApplicationAdminBase):
