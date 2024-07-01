@@ -61,8 +61,9 @@ class PostingResource(ModelResourceWithoutPK):
 
 
 class ApplicationResource(ModelResourceWithoutPK):
-    user = Field(attribute="user__username", column_name="user")
+    username = Field(attribute="user__username", column_name="username")
     posting_url = Field(attribute="posting__url", column_name="posting_url")
+    import_id_fields = ["user", "posting"]
 
     def get_object_from_row(self, row: dict[str, Any]) -> Model:
         return Application.objects.get(
@@ -70,9 +71,8 @@ class ApplicationResource(ModelResourceWithoutPK):
         )
 
     def before_import_row(self, row: dict[str, Any], **kwargs: Any) -> Any:
-        row["id"] = None
-        if not row.get("user"):
-            row["user"] = User.objects.get(username=row["user"]).pk
+        if not row.get("user") and (user_name := row.get("username")):
+            row["user"] = User.objects.get(username=user_name).pk
         row["posting"] = Posting.objects.get(url=row["posting_url"]).pk
         return super().before_import_row(row, **kwargs)
 
