@@ -27,6 +27,7 @@ from ..admin import personal_admin_site
 from ..main.query import posting_with_applications
 from .models import APIKey, Application, Company, Posting, User
 from .resources import (
+    ApplicationResource,
     CompanyResource,
     PostingResource,
     UserApplicationResource,
@@ -320,3 +321,4 @@ class ApplicationPortalAdmin(ApplicationAdminBase):
 @register(Application)
 class ApplicationAdmin(ApplicationAdminBase):
     list_display = ["user"] + ApplicationAdminBase.list_display  # type: ignore
+    resource_classes = [ApplicationResource]
