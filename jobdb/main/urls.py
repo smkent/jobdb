@@ -13,6 +13,11 @@ urlpatterns = [
         "companies", views.CompanyHTMxTableView.as_view(), name="company_htmx"
     ),
     path(
+        "companies/completion_stats",
+        views.CompanyCompletionStatsHTMxTableView.as_view(),
+        name="company_completion_stats_htmx",
+    ),
+    path(
         "postings", views.PostingHTMxTableView.as_view(), name="posting_htmx"
     ),
     path(
