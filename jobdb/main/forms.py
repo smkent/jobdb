@@ -9,12 +9,13 @@ from django.forms import (
     CharField,
     Form,
     HiddenInput,
+    ModelChoiceField,
     ModelForm,
     Textarea,
     TextInput,
 )
 
-from .models import Posting, User
+from .models import Company, Posting, User
 
 
 class UserProfileForm(ModelForm):
@@ -25,6 +26,9 @@ class UserProfileForm(ModelForm):
 
 class URLTextareaForm(Form):
     tool = CharField(widget=HiddenInput, initial="urls_submitted")
+    company: ModelChoiceField = ModelChoiceField(
+        queryset=Company.objects.all()
+    )
     text = CharField(label="URL(s), one per line", widget=Textarea)
 
 
@@ -35,13 +39,15 @@ class AddPostingForm(ModelForm):
         model = Posting
         fields = [
             "include",
+            "company",
             "url",
             "title",
             "location",
             "wa_jurisdiction",
             "notes",
+            "company",
         ]
-        widgets = {"notes": TextInput}
+        widgets = {"notes": TextInput, "company": HiddenInput}
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -58,6 +64,11 @@ class AddPostingForm(ModelForm):
                         Field(field_name, css_class="p-3"),
                         css_class="col-auto",
                     )
+                )
+                continue
+            if field_name == "company":
+                layout_items.append(
+                    Column("company", css_class="col-auto p-0 m-0")
                 )
                 continue
             layout_items.append(

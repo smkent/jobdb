@@ -136,16 +136,12 @@ class AddPostingsView(View):
         if request.POST.get("tool") == "urls_submitted":
             return self.process_raw_urls(request)
         formset = formset_factory(self.form_class_2)(request.POST)
-        try:
-            company = Company.objects.get(pk=request.POST["company"])
-        except (ValueError, Company.DoesNotExist):
-            company = None
-        if not company or not formset.is_valid():
+        if not formset.is_valid():
             return render(
                 request,
                 self.template_name,
                 self.create_context(
-                    formset=formset, company=company.pk if company else None
+                    formset=formset,
                 ),
             )
         new_saved_postings = []
@@ -158,29 +154,33 @@ class AddPostingsView(View):
             ).first():
                 posting_matches.append(posting)
                 continue
-            form.instance.company = company
             obj = form.save()
             new_saved_postings.append(obj)
         return render(
             request,
             self.template_name,
             self.create_context(
+                company=formset[0].cleaned_data.get("company"),
                 posting_matches=posting_matches,
                 new_saved_postings=new_saved_postings,
-                company=company.pk,
             ),
         )
 
     def create_context(self, **context: Any) -> dict[str, Any]:
-        context.setdefault("form_title", "Add postings")
+        company = context.get("company")
         if formset := context.get("formset"):
             helper = formset[0].helper
             helper.form_tag = False
             context["helper"] = helper
-            context.setdefault(
-                "companies",
-                Company.objects.order_by("name"),
-            )
+            if not company:
+                company = formset[0].initial.get("company") or formset[
+                    0
+                ].cleaned_data.get("company")
+        company_name = company.name if company else ""
+        context.setdefault(
+            "form_title",
+            "Add postings" + (f" for {company_name}" if company_name else ""),
+        )
         return context
 
     def process_raw_urls(self, request: HttpRequest) -> HttpResponse:
@@ -197,7 +197,10 @@ class AddPostingsView(View):
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
             formset = formset_factory(self.form_class_2, extra=0)(
-                initial=[{"url": url} for url in new_urls]
+                initial=[
+                    {"url": url, "company": form.cleaned_data["company"]}
+                    for url in new_urls
+                ]
             )
         else:
             formset = None
