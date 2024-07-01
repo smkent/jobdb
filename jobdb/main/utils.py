@@ -1,20 +1,28 @@
 import re
+from contextlib import suppress
 from typing import Any
 from urllib.parse import ParseResult, urlparse, urlunparse
+from uuid import UUID
 
 
 def normalize_posting_url(url: str) -> str:
-    bits = urlparse(url.strip())
-
     def r(u: ParseResult, **kw: Any) -> ParseResult:
         return u._replace(**kw)
 
+    url = url.strip()
+    if not (url.startswith("http:" + "//") or url.startswith("https:" + "//")):
+        url = "https:" f"//{url}"
+    bits = urlparse(url.strip())
     if bits.netloc in {"linkedin.com", "www.linkedin.com"} and re.match(
         r"\/jobs\/view\/[0-9]+\/?", bits.path
     ):
         if not bits.path.endswith("/"):
             bits = r(bits, path=bits.path + "/")
         bits = r(bits, query="")
+    if bits.netloc in {"jobs.ashbyhq.com", "jobs.lever.co"}:
+        with suppress(ValueError):
+            UUID(bits.path.rstrip("/").rsplit("/", 1)[-1])
+            bits = r(bits, query="")
     return urlunparse(bits)
 
 
