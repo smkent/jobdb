@@ -1,6 +1,7 @@
 from typing import Sequence
 
 from django.db.models import (
+    Case,
     Count,
     Exists,
     F,
@@ -8,6 +9,7 @@ from django.db.models import (
     OuterRef,
     QuerySet,
     Subquery,
+    When,
 )
 from django.db.models.aggregates import Sum
 from django.db.models.expressions import Value
@@ -106,8 +108,13 @@ def companies_completion_stats(
             ),
             max_apps=F("queue_count") + F("apps_count"),
             apps_percent=(
-                Cast(F("apps_count"), FloatField())
-                / Cast(F("max_apps"), FloatField())
+                Case(
+                    When(max_apps=0, then=Value(0.0)),
+                    default=(
+                        Cast(F("apps_count"), FloatField())
+                        / Cast(F("max_apps"), FloatField())
+                    ),
+                )
             ),
         )
         .order_by(*order_by)
