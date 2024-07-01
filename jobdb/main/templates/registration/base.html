@@ -21,7 +21,7 @@
             {% if form %}
               <div class="row">
                 {% csrf_token %}
-                {% crispy form %}
+                {{ form|crispy }}
               </div>
             {% endif %}
             <div class="row p-3">
