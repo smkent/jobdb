@@ -83,14 +83,20 @@
         {% endif %}
         <div class="container-fluid p-0">
           <div class="row">
+            <div class="col">
+              <h4><a href="{% url 'company_completion_stats_htmx' %}">Company completion stats</a></h4>
+              <br />
+            </div>
+          </div>
+          <div class="row">
             {% if leaderboard_companies.count %}
               <div class="col">
                 <h4>Top companies</h4>
                 <ul>
                   {% for c in leaderboard_companies|slice:"0:10" %}
                     <li>
-                      <a href="{% url 'posting_htmx' %}?company={{ c.company }}">{{c.company }}</a>
-                      ({{ c.application_count }} total applications)</li>
+                      <a href="{% url 'posting_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
+                      ({{ c.apps_count }} total applications)</li>
                   {% endfor %}
                 </ul>
                 <br />

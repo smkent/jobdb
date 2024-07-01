@@ -20,7 +20,7 @@ from rest_framework.views import APIView as BaseAPIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from ..main.models import Application, Posting, User
-from ..main.query import companies_with_postings_count, posting_queue_set
+from ..main.query import companies_with_counts, posting_queue_set
 from . import serializers
 from .auth import APIKeyAuthentication
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
@@ -54,7 +54,7 @@ class MeView(APIViewSet, RetrieveModelMixin, UpdateModelMixin):
 
 
 class BaseCompanyViewSet(APIViewSet):
-    queryset = companies_with_postings_count().order_by("name")
+    queryset = companies_with_counts().order_by("name")
     serializer_class = serializers.CompanySerializer
 
 
