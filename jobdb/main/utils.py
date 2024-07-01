@@ -6,11 +6,13 @@ from uuid import UUID
 
 
 def normalize_posting_url(url: str) -> str:
-    bits = urlparse(url.strip())
-
     def r(u: ParseResult, **kw: Any) -> ParseResult:
         return u._replace(**kw)
 
+    url = url.strip()
+    if not (url.startswith("http:" + "//") or url.startswith("https:" + "//")):
+        url = "https:" f"//{url}"
+    bits = urlparse(url.strip())
     if bits.netloc in {"linkedin.com", "www.linkedin.com"} and re.match(
         r"\/jobs\/view\/[0-9]+\/?", bits.path
     ):

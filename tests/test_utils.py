@@ -43,6 +43,19 @@ from jobdb.main.utils import normalize_posting_url
             ),
             id="lever",
         ),
+        pytest.param("example.com", "https://example.com", id="bare_domain"),
+        pytest.param(
+            (
+                "jobs.lever.co/aledade"
+                "/c50ffde9-0a11-49b2-9703-c0908761ca1e"
+                "?source=LinkedIn"
+            ),
+            (
+                "https://jobs.lever.co/aledade"
+                "/c50ffde9-0a11-49b2-9703-c0908761ca1e"
+            ),
+            id="lever_bare_url",
+        ),
     ],
 )
 def test_normalize_posting_url(url: str, expected_result: str) -> None:
