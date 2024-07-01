@@ -2,6 +2,7 @@ from typing import Any, Sequence
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, Count, F, Max, Model, QuerySet, When
+from django.db.models.functions import Lower
 from django.forms import ModelForm, formset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -63,7 +64,7 @@ class IndexView(BaseView, TemplateView):
         companies_with_postings = (
             companies_with_counts()
             .filter(posting_count__gt=0)
-            .order_by("-posting_count", "name")
+            .order_by("-posting_count", Lower("name"))
         )
         your_apps = Application.objects.filter(user=self.request.user)
         your_apps_company_count = user_application_companies(self.request.user)
@@ -81,7 +82,7 @@ class IndexView(BaseView, TemplateView):
             .order_by("-count", "user__username")
         )
         leaderboard_companies = companies_with_counts().order_by(
-            "-apps_count", "name"
+            "-apps_count", Lower("name")
         )
         return context | {
             "company": companies,
@@ -136,16 +137,12 @@ class AddPostingsView(View):
         if request.POST.get("tool") == "urls_submitted":
             return self.process_raw_urls(request)
         formset = formset_factory(self.form_class_2)(request.POST)
-        try:
-            company = Company.objects.get(pk=request.POST["company"])
-        except (ValueError, Company.DoesNotExist):
-            company = None
-        if not company or not formset.is_valid():
+        if not formset.is_valid():
             return render(
                 request,
                 self.template_name,
                 self.create_context(
-                    formset=formset, company=company.pk if company else None
+                    formset=formset,
                 ),
             )
         new_saved_postings = []
@@ -158,29 +155,33 @@ class AddPostingsView(View):
             ).first():
                 posting_matches.append(posting)
                 continue
-            form.instance.company = company
             obj = form.save()
             new_saved_postings.append(obj)
         return render(
             request,
             self.template_name,
             self.create_context(
+                company=formset[0].cleaned_data.get("company"),
                 posting_matches=posting_matches,
                 new_saved_postings=new_saved_postings,
-                company=company.pk,
             ),
         )
 
     def create_context(self, **context: Any) -> dict[str, Any]:
-        context.setdefault("form_title", "Add postings")
+        company = context.get("company")
         if formset := context.get("formset"):
             helper = formset[0].helper
             helper.form_tag = False
             context["helper"] = helper
-            context.setdefault(
-                "companies",
-                Company.objects.order_by("name"),
-            )
+            if not company:
+                company = formset[0].initial.get("company") or formset[
+                    0
+                ].cleaned_data.get("company")
+        company_name = company.name if company else ""
+        context.setdefault(
+            "form_title",
+            "Add postings" + (f" for {company_name}" if company_name else ""),
+        )
         return context
 
     def process_raw_urls(self, request: HttpRequest) -> HttpResponse:
@@ -197,7 +198,10 @@ class AddPostingsView(View):
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
             formset = formset_factory(self.form_class_2, extra=0)(
-                initial=[{"url": url} for url in new_urls]
+                initial=[
+                    {"url": url, "company": form.cleaned_data["company"]}
+                    for url in new_urls
+                ]
             )
         else:
             formset = None
@@ -258,7 +262,7 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     template_table_htmx_route = "company_htmx"
     table_class = CompanyHTMxTable
     filterset_class = CompanyFilter
-    queryset = companies_with_counts()
+    queryset = companies_with_counts().order_by(Lower("name"))
     export_name = "companies"
     action_links = [("Add company", reverse_lazy("personal:main_company_add"))]
 
@@ -335,7 +339,7 @@ class PostingHTMxTableView(QueueHTMxTableView):
                     )
                 )
             ),
-        ).order_by("company__name", "title", "url")
+        ).order_by(Lower("company__name"), Lower("title"), "url")
 
 
 class ApplicationHTMxTableView(BaseHTMxTableView):
@@ -355,7 +359,7 @@ class ApplicationHTMxTableView(BaseHTMxTableView):
     def get_queryset(self) -> QuerySet:
         return Application.objects.filter(user=self.request.user).order_by(
             "-applied",
-            "posting__company__name",
-            "posting__title",
+            Lower("posting__company__name"),
+            Lower("posting__title"),
             "posting__url",
         )

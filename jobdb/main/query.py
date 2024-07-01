@@ -13,7 +13,7 @@ from django.db.models import (
 )
 from django.db.models.aggregates import Sum
 from django.db.models.expressions import Value
-from django.db.models.functions import Cast, Coalesce
+from django.db.models.functions import Cast, Coalesce, Lower
 
 from .models import Application, Company, Posting, User
 
@@ -36,7 +36,7 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
         user=user, queryset=Posting.objects.filter(closed=None)
     ).filter(has_application=False)
     if ordered:
-        qs = qs.order_by("-company__priority", "company__name", "pk")
+        qs = qs.order_by("-company__priority", Lower("company__name"), "pk")
     return qs
 
 
@@ -55,7 +55,7 @@ def posting_queue_companies_count(user: User) -> QuerySet:
             ),
         )
         .filter(count__isnull=False)
-        .order_by("-priority", "-count", "name")
+        .order_by("-priority", "-count", Lower("name"))
     )
 
 
@@ -139,7 +139,7 @@ def user_application_companies(user: User) -> QuerySet:
             ),
         )
         .filter(count__isnull=False)
-        .order_by("-count", "name")
+        .order_by("-count", Lower("name"))
     )
 
 
