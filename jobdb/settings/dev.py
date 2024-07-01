@@ -18,6 +18,7 @@ DATABASES = {
 }
 
 msmtp = MsmtpConfig()
+DEFAULT_FROM_EMAIL = "jobdb-dev@" + (msmtp.host or "localhost")
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = msmtp.host
 EMAIL_PORT = msmtp.port
