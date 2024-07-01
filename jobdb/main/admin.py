@@ -26,7 +26,12 @@ from import_export.admin import (  # type: ignore
 from ..admin import personal_admin_site
 from ..main.query import posting_with_applications
 from .models import APIKey, Application, Company, Posting, User
-from .resources import UserResource
+from .resources import (
+    CompanyResource,
+    PostingResource,
+    UserApplicationResource,
+    UserResource,
+)
 
 register_portal = partial(register, site=personal_admin_site)
 
@@ -151,6 +156,7 @@ class CompanyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     list_filter = ["priority"]
     ordering = ["name"]
     search_fields = ["name", "url"]
+    resource_classes = [CompanyResource]
 
     @display(description=Company._meta.get_field("url").verbose_name)
     def url_clickable(self, obj: Company) -> str:
@@ -195,6 +201,7 @@ class PostingAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     ordering = ["company__name", "title", "url"]
     actions = ["mark_applied", "mark_closed"]
     search_fields = ["company__name", "title", "url"]
+    resource_classes = [PostingResource]
 
     @display(description=Company._meta.get_field("name").verbose_name)
     def company_name(self, obj: Company) -> str:
@@ -286,6 +293,7 @@ class ApplicationAdminBase(ImportExportMixin, ExportActionMixin, ModelAdmin):
 @register_portal(Application)
 class ApplicationPortalAdmin(ApplicationAdminBase):
     exclude = ["user"]
+    resource_classes = [UserApplicationResource]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         return super().get_queryset(request).filter(user=request.user)
@@ -295,6 +303,18 @@ class ApplicationPortalAdmin(ApplicationAdminBase):
     ) -> None:
         obj.user = request.user
         super().save_model(request, obj, *args, **kwargs)
+
+    def get_data_for_export(
+        self, request: HttpRequest, queryset: QuerySet, **kwargs: Any
+    ) -> Any:
+        queryset = queryset.filter(user=request.user)
+        return super().get_data_for_export(request, queryset, **kwargs)
+
+    def get_import_resource_kwargs(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> dict[str, Any]:
+        kwargs = super().get_resource_kwargs(request, *args, **kwargs)
+        return kwargs | {"user": request.user}
 
 
 @register(Application)
