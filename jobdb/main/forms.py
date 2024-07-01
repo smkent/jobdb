@@ -4,6 +4,7 @@ from typing import Any
 from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
 from crispy_forms.helper import FormHelper  # type: ignore
 from crispy_forms.layout import Column, Field, Layout, Row  # type: ignore
+from django.db.models.functions import Lower
 from django.forms import (
     BooleanField,
     CharField,
@@ -27,7 +28,7 @@ class UserProfileForm(ModelForm):
 class URLTextareaForm(Form):
     tool = CharField(widget=HiddenInput, initial="urls_submitted")
     company: ModelChoiceField = ModelChoiceField(
-        queryset=Company.objects.all()
+        queryset=Company.objects.all().order_by(Lower("name"))
     )
     text = CharField(label="URL(s), one per line", widget=Textarea)
 

@@ -2,6 +2,7 @@ from typing import Any, Sequence
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, Count, F, Max, Model, QuerySet, When
+from django.db.models.functions import Lower
 from django.forms import ModelForm, formset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -63,7 +64,7 @@ class IndexView(BaseView, TemplateView):
         companies_with_postings = (
             companies_with_counts()
             .filter(posting_count__gt=0)
-            .order_by("-posting_count", "name")
+            .order_by("-posting_count", Lower("name"))
         )
         your_apps = Application.objects.filter(user=self.request.user)
         your_apps_company_count = user_application_companies(self.request.user)
@@ -81,7 +82,7 @@ class IndexView(BaseView, TemplateView):
             .order_by("-count", "user__username")
         )
         leaderboard_companies = companies_with_counts().order_by(
-            "-apps_count", "name"
+            "-apps_count", Lower("name")
         )
         return context | {
             "company": companies,
@@ -261,7 +262,7 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     template_table_htmx_route = "company_htmx"
     table_class = CompanyHTMxTable
     filterset_class = CompanyFilter
-    queryset = companies_with_counts()
+    queryset = companies_with_counts().order_by(Lower("name"))
     export_name = "companies"
     action_links = [("Add company", reverse_lazy("personal:main_company_add"))]
 
@@ -338,7 +339,7 @@ class PostingHTMxTableView(QueueHTMxTableView):
                     )
                 )
             ),
-        ).order_by("company__name", "title", "url")
+        ).order_by(Lower("company__name"), Lower("title"), "url")
 
 
 class ApplicationHTMxTableView(BaseHTMxTableView):
@@ -358,7 +359,7 @@ class ApplicationHTMxTableView(BaseHTMxTableView):
     def get_queryset(self) -> QuerySet:
         return Application.objects.filter(user=self.request.user).order_by(
             "-applied",
-            "posting__company__name",
-            "posting__title",
+            Lower("posting__company__name"),
+            Lower("posting__title"),
             "posting__url",
         )
