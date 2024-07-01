@@ -18,6 +18,10 @@ from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.html import format_html
+from import_export.admin import (  # type: ignore
+    ExportActionMixin,
+    ImportExportMixin,
+)
 
 from ..admin import personal_admin_site
 from ..main.query import posting_with_applications
@@ -88,12 +92,12 @@ def clickable_url_html(
 
 
 @register(User)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(ImportExportMixin, ExportActionMixin, BaseUserAdmin):
     ordering = ["username"]
 
 
 @register(APIKey)
-class APIKeyAdmin(ModelAdmin):
+class APIKeyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     ordering = ["user__username", "created", "key"]
     list_display = ["user", "key", "comment", "created"]
     list_display_links = ["key"]
@@ -128,7 +132,7 @@ class APIKeyPortalAdmin(ModelAdmin):
 
 @register(Company)
 @register_portal(Company)
-class CompanyAdmin(ModelAdmin):
+class CompanyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     list_display = [
         "name",
         "url_clickable",
@@ -170,7 +174,7 @@ class PostingClosedFilter(SimpleListFilter):
 
 @register(Posting)
 @register_portal(Posting)
-class PostingAdmin(ModelAdmin):
+class PostingAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     list_display = [
         "company_name",
         "title",
@@ -217,7 +221,7 @@ class PostingAdmin(ModelAdmin):
             application.save()
 
 
-class ApplicationAdminBase(ModelAdmin):
+class ApplicationAdminBase(ImportExportMixin, ExportActionMixin, ModelAdmin):
     list_display = [
         "company_name",
         "role_title",
