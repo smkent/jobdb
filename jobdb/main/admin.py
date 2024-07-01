@@ -97,6 +97,12 @@ class UserAdmin(ImportExportMixin, ExportActionMixin, BaseUserAdmin):
     ordering = ["username"]
     resource_classes = [UserResource]
 
+    def get_data_for_export(
+        self, request: HttpRequest, queryset: QuerySet, **kwargs: Any
+    ) -> Any:
+        queryset = queryset.exclude(username="admin")
+        return super().get_data_for_export(request, queryset, **kwargs)
+
 
 @register(APIKey)
 class APIKeyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):

@@ -1,9 +1,10 @@
 import os
 
+from jobdb.main.models import User
 from jobdb.main.resources import UserResource
 
 
-def test_user_export() -> None:
+def test_user_export(admin_user: User) -> None:
     dataset = UserResource().export()
     assert os.linesep.join(
         [x.strip() for x in dataset.csv.splitlines()]
