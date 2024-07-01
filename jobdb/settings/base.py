@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 
 from .email import (  # noqa
+    DEFAULT_FROM_EMAIL,
     EMAIL_BACKEND,
     EMAIL_HOST,
     EMAIL_HOST_PASSWORD,
