@@ -23,6 +23,8 @@ class MsmtpConfig:
     host_password: str = field(default="", repr=False)
 
     def __post_init__(self) -> None:
+        if not self.config_file.is_file():
+            return
         for line in self.config_file.read_text().splitlines():
             if not (line := line.strip().split("#", 1)[0].strip()):
                 continue
