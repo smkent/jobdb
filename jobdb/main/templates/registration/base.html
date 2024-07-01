@@ -1,0 +1,21 @@
+{% extends "main/base.html" %}
+
+{% block body %}
+  <body style="height: 100vh;">
+    <div
+      class="vstack gap-0 d-flex align-items-center justify-content-center"
+      style="height: 100%;">
+      <div class="text-danger">
+        {% block form_errors %}
+          {% if form.errors %}
+            <p>{{ form.errors }}</p>
+          {% endif %}
+        {% endblock %}
+      </div>
+      <div class="p-5 rounded shadow" style="background-color: #dddde5;">
+        {% block form %}
+        {% endblock %}
+      </div>
+    </div>
+  </body>
+{% endblock %}
