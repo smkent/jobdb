@@ -26,6 +26,7 @@ from import_export.admin import (  # type: ignore
 from ..admin import personal_admin_site
 from ..main.query import posting_with_applications
 from .models import APIKey, Application, Company, Posting, User
+from .resources import UserResource
 
 register_portal = partial(register, site=personal_admin_site)
 
@@ -94,6 +95,7 @@ def clickable_url_html(
 @register(User)
 class UserAdmin(ImportExportMixin, ExportActionMixin, BaseUserAdmin):
     ordering = ["username"]
+    resource_classes = [UserResource]
 
 
 @register(APIKey)
