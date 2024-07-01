@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_htmx",
     "django_tables2",
+    "import_export",
     "jobdb.apps.AdminConfig",
     "jobdb.main.apps.AppConfig",
     "rest_framework",
