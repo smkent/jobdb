@@ -1,21 +1,37 @@
 {% extends "main/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block body %}
   <body style="height: 100vh;">
     <div
       class="vstack gap-0 d-flex align-items-center justify-content-center"
       style="height: 100%;">
-      <div class="text-danger">
-        {% block form_errors %}
-          {% if form.errors %}
+      {% block form_errors %}
+        {% if form.errors %}
+          <div class="text-danger">
             <p>{{ form.errors }}</p>
-          {% endif %}
-        {% endblock %}
-      </div>
+          </div>
+        {% endif %}
+      {% endblock %}
+
       <div class="p-5 rounded shadow" style="background-color: #dddde5;">
+        {% block title %}{% endblock %}
         {% block form %}
+          <form method="post" action="" role="form">
+            {% if form %}
+              <div class="row">
+                {% csrf_token %}
+                {% crispy form %}
+              </div>
+            {% endif %}
+            <div class="row p-3">
+              <input type="hidden" name="next" value="{{ next }}">
+              <input type="submit" value="{% block submit_text %}Submit{% endblock %}" class="btn btn-primary btn-block">
+            </div>
+            {% block action_buttons %}
+            {% endblock %}
+          </form>
         {% endblock %}
       </div>
-    </div>
-  </body>
+    </body>
 {% endblock %}
