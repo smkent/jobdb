@@ -18,7 +18,31 @@ from jobdb.main.utils import normalize_posting_url
             ),
             "https://www.linkedin.com/jobs/view/3943736060/",
             id="linkedin",
-        )
+        ),
+        pytest.param(
+            (
+                "https://jobs.ashbyhq.com/rula"
+                "/a86695b3-6dce-4ff7-828e-c7d5781fe6b5"
+                "?locationId=d8ccc202-4d14-4fba-a9a5-667fe66dec77"
+            ),
+            (
+                "https://jobs.ashbyhq.com/rula"
+                "/a86695b3-6dce-4ff7-828e-c7d5781fe6b5"
+            ),
+            id="ashby",
+        ),
+        pytest.param(
+            (
+                "https://jobs.lever.co/aledade"
+                "/c50ffde9-0a11-49b2-9703-c0908761ca1e"
+                "?source=LinkedIn"
+            ),
+            (
+                "https://jobs.lever.co/aledade"
+                "/c50ffde9-0a11-49b2-9703-c0908761ca1e"
+            ),
+            id="lever",
+        ),
     ],
 )
 def test_normalize_posting_url(url: str, expected_result: str) -> None:

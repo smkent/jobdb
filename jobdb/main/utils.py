@@ -1,6 +1,8 @@
 import re
+from contextlib import suppress
 from typing import Any
 from urllib.parse import ParseResult, urlparse, urlunparse
+from uuid import UUID
 
 
 def normalize_posting_url(url: str) -> str:
@@ -15,6 +17,10 @@ def normalize_posting_url(url: str) -> str:
         if not bits.path.endswith("/"):
             bits = r(bits, path=bits.path + "/")
         bits = r(bits, query="")
+    if bits.netloc in {"jobs.ashbyhq.com", "jobs.lever.co"}:
+        with suppress(ValueError):
+            UUID(bits.path.rstrip("/").rsplit("/", 1)[-1])
+            bits = r(bits, query="")
     return urlunparse(bits)
 
 
