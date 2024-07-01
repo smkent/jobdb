@@ -63,7 +63,6 @@ class AppliedDateField(DateTimeField):
         super().__init__(*args, **kwargs)
 
     def pre_save(self, model_instance: Model, add: bool) -> Any:
-        print("ADF", model_instance, add)
         if not getattr(model_instance, self.attname, None):
             value = timezone.now()
             setattr(model_instance, self.attname, value)
