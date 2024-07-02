@@ -43,7 +43,6 @@ class Command(BaseCommand):
                 company_name_lower__in=[n.lower() for n in company_names]
             )
         self.run(queryset)
-        self.stdout.write(self.style.SUCCESS("Did the thing"))
 
     def run(self, postings: QuerySet) -> None:
         for posting in postings.all():
