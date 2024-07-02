@@ -50,12 +50,16 @@ class Command(BaseCommand):
             self.check_posting(posting)
 
     def check_posting(self, posting: Posting) -> None:
-        response = requests.head(
-            posting.url,
-            allow_redirects=False,
-            timeout=3,
-            headers=HEADERS.copy(),
-        )
+        try:
+            response = requests.head(
+                posting.url,
+                allow_redirects=False,
+                timeout=3,
+                headers=HEADERS.copy(),
+            )
+        except requests.exceptions.RequestException as e:
+            print(f"Exception requesting {posting.url}: {e} (skip)")
+            return
         if 300 <= response.status_code <= 399:
             dest = response.headers.get("Location")
             posting.closed = timezone.now()
