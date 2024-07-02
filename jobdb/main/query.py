@@ -71,6 +71,16 @@ def companies_with_counts() -> QuerySet:
             ),
             0,
         ),
+        reported_apps_count=Coalesce(
+            Subquery(
+                Application.objects.filter(reported__isnull=False)
+                .filter(posting__company=OuterRef("pk"))
+                .values("posting__company")
+                .annotate(count=Count("pk"))
+                .values("count"),
+            ),
+            0,
+        ),
     )
     assert isinstance(queryset, QuerySet)
     return queryset

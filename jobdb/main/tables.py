@@ -84,6 +84,7 @@ class ApplicationCompanyCountHTMxTable(Table):
 class CompanyCompletionStatsHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
     apps_count = Column(verbose_name="Total applications")
+    reported_apps_count = Column(verbose_name="Reported applications")
     queue_count = Column(verbose_name="Total queued")
     max_apps = Column(verbose_name="Total possible applications")
     apps_percent = Column(verbose_name="Percent complete")
@@ -95,6 +96,7 @@ class CompanyCompletionStatsHTMxTable(Table):
             "name",
             "priority",
             "apps_count",
+            "reported_apps_count",
             "queue_count",
             "max_apps",
             "apps_percent",
@@ -103,6 +105,7 @@ class CompanyCompletionStatsHTMxTable(Table):
             "name",
             "priority",
             "apps_count",
+            "reported_apps_count",
             "queue_count",
             "max_apps",
             "apps_percent",
