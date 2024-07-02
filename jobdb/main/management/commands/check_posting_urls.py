@@ -33,11 +33,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args: Any, **options: Any) -> None:
-        queryset = Posting.objects.filter(closed=None)
+        queryset = (
+            Posting.objects.filter(closed=None)
+            .annotate(company_name_lower=Lower("company__name"))
+            .order_by("company_name_lower")
+        )
         if company_names := options.get("companies"):
-            queryset = queryset.annotate(
-                company_name_lower=Lower("company__name")
-            ).filter(company_name_lower__in=[n.lower() for n in company_names])
+            queryset = queryset.filter(
+                company_name_lower__in=[n.lower() for n in company_names]
+            )
         self.run(queryset)
         self.stdout.write(self.style.SUCCESS("Did the thing"))
 
