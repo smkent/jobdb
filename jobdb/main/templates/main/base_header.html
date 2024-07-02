@@ -1,0 +1,47 @@
+{% load static %}
+{% if user.is_authenticated %}
+  <div class="container-fluid bg-dark text-light p-2" id="header-container">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-auto">
+          <h1>
+            <img src="{% static 'main/briefcase.svg' %}" height=32 width=32 class="align-baseline" />
+            <a href="{% url 'index' %}" class="link-light text-decoration-none">Autojob database</a>
+            {% if settings_debug %}
+              <span class="text-secondary">
+                (Dev)
+              </span>
+            {% endif %}
+          </h1>
+        </div>
+        <div class="col text-sm-end">
+          Welcome, <b>{{ request.user }}</b> |
+          <a href="{% url 'password_change' %}" class="link-info">Change password</a> |
+
+          <form action="{% url 'logout' %}" method="post" class="d-inline-block">
+            <input type="hidden" name="next" value="{{ request.path }}" />
+            {% csrf_token %}
+            <button type="submit" class="border-0 p-0 align-baseline btn btn-link link-info"><b>Log Out</b></button>
+          </form>
+
+          <br />
+
+          <a href="{% url 'index' %}" class="link-info">Dashboard</a> |
+          <a href="{% url 'queue_htmx' %}" class="link-info"><b>Postings Queue</b></a> |
+          <a href="{% url 'add_postings' %}" class="link-info">Add postings</a> |
+          <a href="{% url 'personal:index' %}" class="link-info">DB Portal</a>
+          {% if request.user.is_staff %}
+            / <a href="{% url 'admin:index' %}" class="link-info">Admin</a>
+          {% endif %}
+          |
+          <a href="{% url 'api-root' %}" class="link-info">API</a>
+          (
+          <a href="{% url 'redoc' %}" class="link-info">Docs</a>,
+          <a href="{% url 'swagger-ui' %}" class="link-info">Swagger</a>
+          )
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}

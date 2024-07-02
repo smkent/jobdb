@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block extrahead %}
+{# {% bootstrap_css %} #}
+  {% bootstrap_javascript %}
+  <link rel="shortcut icon" type="image/svg+xml"
+        href="{% static 'main/briefcase.svg' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'main/main.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'admin/bootstrap-admin.css' %}" />
+{% endblock %}
+
+{% block header %}
+  {% include 'main/base_header.html' %}
+{% endblock %}
