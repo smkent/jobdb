@@ -44,8 +44,11 @@ class Command(BaseCommand):
     def run(self, postings: QuerySet) -> None:
         for posting in postings.all():
             url_bits = urlparse(posting.url)
-            # Skip LinkedIn URLs, which can redirect to the login page
             if url_bits.netloc in {"linkedin.com", "www.linkedin.com"}:
+                # Skip LinkedIn URLs, which can redirect to the login page
+                continue
+            if url_bits.netloc in {"timescale.com", "www.timescale.com"}:
+                # Redirects even if still open
                 continue
             self.check_posting(posting)
 
