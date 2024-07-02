@@ -194,7 +194,7 @@ class PostingAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
         "company_name",
         "title",
         "url_clickable",
-        "is_closed",
+        "closed",
         "created",
     ]
     list_display_links = ["title"]
@@ -216,10 +216,6 @@ class PostingAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     @display(description=Posting._meta.get_field("url").verbose_name)
     def url_clickable(self, obj: Posting) -> str:
         return clickable_url_html(obj.url, display=obj.url_text)
-
-    @display(description="Closed")
-    def is_closed(self, obj: Posting) -> str:
-        return "Yes" if bool(obj.closed) else "No"
 
     @action(description="Mark selected postings as closed")
     @require_confirmation(queryset_filter=lambda qs: qs.filter(closed=None))
