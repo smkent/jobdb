@@ -33,19 +33,25 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args: Any, **options: Any) -> None:
-        queryset = Posting.objects.filter(closed=None)
+        queryset = (
+            Posting.objects.filter(closed=None)
+            .annotate(company_name_lower=Lower("company__name"))
+            .order_by("company_name_lower")
+        )
         if company_names := options.get("companies"):
-            queryset = queryset.annotate(
-                company_name_lower=Lower("company__name")
-            ).filter(company_name_lower__in=[n.lower() for n in company_names])
+            queryset = queryset.filter(
+                company_name_lower__in=[n.lower() for n in company_names]
+            )
         self.run(queryset)
-        self.stdout.write(self.style.SUCCESS("Did the thing"))
 
     def run(self, postings: QuerySet) -> None:
         for posting in postings.all():
             url_bits = urlparse(posting.url)
-            # Skip LinkedIn URLs, which can redirect to the login page
             if url_bits.netloc in {"linkedin.com", "www.linkedin.com"}:
+                # Skip LinkedIn URLs, which can redirect to the login page
+                continue
+            if url_bits.netloc in {"timescale.com", "www.timescale.com"}:
+                # Redirects even if still open
                 continue
             self.check_posting(posting)
 
