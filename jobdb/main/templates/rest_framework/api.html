@@ -1,0 +1,14 @@
+{% extends "rest_framework/api.html" %}
+{% load static %}
+
+{% block branding %}
+  <a class="navbar-brand" href="{% url 'index' %}">Autojob API</a>
+  <a class="navbar-text" href="{% url 'redoc' %}">Docs</a>
+  <a class="navbar-text" href="{% url 'swagger-ui' %}">Swagger</a>
+{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="shortcut icon" type="image/svg+xml"
+        href="{% static 'main/briefcase.svg' %}" />
+{% endblock %}
