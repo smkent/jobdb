@@ -10,6 +10,8 @@ def normalize_posting_url(url: str) -> str:
         return u._replace(**kw)
 
     url = url.strip()
+    if not url:
+        return ""
     if not (url.startswith("http:" + "//") or url.startswith("https:" + "//")):
         url = "https:" f"//{url}"
     bits = urlparse(url.strip())
