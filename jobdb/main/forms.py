@@ -27,10 +27,26 @@ class UserProfileForm(ModelForm):
 
 class URLTextareaForm(Form):
     tool = CharField(widget=HiddenInput, initial="urls_submitted")
+    text = CharField(label="URL(s), one per line", widget=Textarea)
+
+
+class CompanyChoiceForm(Form):
     company: ModelChoiceField = ModelChoiceField(
         queryset=Company.objects.all().order_by(Lower("name"))
     )
-    text = CharField(label="URL(s), one per line", widget=Textarea)
+
+    @cached_property
+    def helper(self) -> FormHelper:
+        _helper = FormHelper(self)
+        layout_items = [
+            Column(
+                FloatingField(field_name),
+                css_class="col-auto",
+            )
+            for field_name in self.fields.keys()
+        ]
+        _helper.layout = Layout(Row(*layout_items))
+        return _helper
 
 
 class AddPostingForm(ModelForm):
