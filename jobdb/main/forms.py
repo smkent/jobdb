@@ -1,4 +1,5 @@
 from functools import cached_property
+from itertools import batched
 from typing import Any
 
 from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
@@ -32,20 +33,57 @@ class URLTextareaForm(Form):
 
 class CompanyChoiceForm(Form):
     company: ModelChoiceField = ModelChoiceField(
-        queryset=Company.objects.all().order_by(Lower("name"))
+        required=False,
+        empty_label="(Add new)",
+        queryset=Company.objects.all().order_by(Lower("name")),
     )
 
     @cached_property
     def helper(self) -> FormHelper:
         _helper = FormHelper(self)
+        _helper.form_tag = False
         layout_items = [
-            Column(
-                FloatingField(field_name),
-                css_class="col-auto",
-            )
+            Column(FloatingField(field_name), css_class="col-auto")
             for field_name in self.fields.keys()
         ]
         _helper.layout = Layout(Row(*layout_items))
+        return _helper
+
+
+class AddCompanyForm(ModelForm):
+    class Meta:
+        model = Company
+        fields = [
+            "name",
+            "hq",
+            "url",
+            "careers_url",
+            "employees_est",
+            "employees_est_source",
+            "how_found",
+            "priority",
+            "notes",
+        ]
+        labels = {
+            "employees_est": "# employees",
+            "employees_est_source": "# employees source",
+        }
+
+    @cached_property
+    def helper(self) -> FormHelper:
+        _helper = FormHelper(self)
+        _helper.form_tag = False
+        layout_rows = []
+        for batch in batched(self.fields.keys(), n=5):
+            layout_rows.append(
+                Row(
+                    *[
+                        Column(FloatingField(field_name), css_class="col-auto")
+                        for field_name in batch
+                    ]
+                )
+            )
+        _helper.layout = Layout(*layout_rows)
         return _helper
 
 

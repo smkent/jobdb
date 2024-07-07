@@ -21,6 +21,7 @@ from .filters import (
     PostingFilter,
 )
 from .forms import (
+    AddCompanyForm,
     AddPostingForm,
     CompanyChoiceForm,
     URLTextareaForm,
@@ -152,18 +153,31 @@ class AddPostingsView(View):
     ) -> HttpResponse:
         if request.POST.get("tool") == "urls_submitted":
             return self.process_raw_urls(request)
+        add_form = AddCompanyForm(request.POST, prefix="add_company")
         company_form = self.form_class_select_company(
             request.POST, prefix="company"
         )
         formset = self.make_formset()(request.POST)
-        if not company_form.is_valid() or not formset.is_valid():
+        all_valid = (
+            company_form.is_valid()
+            and (
+                (company := company_form.cleaned_data["company"])
+                or add_form.is_valid()
+            )
+            and formset.is_valid()
+        )
+        if not all_valid:
             return render(
                 request,
                 self.template_name,
-                self.create_context(form=company_form, formset=formset),
+                self.create_context(
+                    form=company_form, add_form=add_form, formset=formset
+                ),
             )
         new_saved_postings = []
         posting_matches = []
+        if not company:
+            company = add_form.save()
         for form in formset:
             if form.cleaned_data["include"] is False:
                 continue
@@ -172,7 +186,7 @@ class AddPostingsView(View):
             ).first():
                 posting_matches.append(posting)
                 continue
-            form.instance.company = company_form.cleaned_data["company"]
+            form.instance.company = company
             obj = form.save()
             new_saved_postings.append(obj)
         return render(
@@ -205,11 +219,13 @@ class AddPostingsView(View):
         urls = [u for u in urls if u]
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
+            add_form = AddCompanyForm(prefix="add_company")
             company_form = self.form_class_select_company(prefix="company")
             formset = self.make_formset(num=len(new_urls))(
                 initial=[{"url": url} for url in new_urls]
             )
         else:
+            add_form = None
             company_form = None
             formset = None
         return render(
@@ -218,6 +234,7 @@ class AddPostingsView(View):
             self.create_context(
                 posting_matches=posting_matches,
                 new_urls=new_urls,
+                add_form=add_form,
                 form=company_form,
                 formset=formset,
             ),
