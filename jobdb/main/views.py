@@ -3,7 +3,7 @@ from typing import Any, Sequence
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, Count, F, Max, Model, QuerySet, When
 from django.db.models.functions import Lower
-from django.forms import ModelForm, formset_factory
+from django.forms import ModelForm, inlineformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
@@ -20,7 +20,13 @@ from .filters import (
     CompanyFilter,
     PostingFilter,
 )
-from .forms import AddPostingForm, URLTextareaForm, UserProfileForm
+from .forms import (
+    AddCompanyForm,
+    AddPostingForm,
+    CompanyChoiceForm,
+    URLTextareaForm,
+    UserProfileForm,
+)
 from .models import Application, Company, Posting, User
 from .query import (
     companies_completion_stats,
@@ -117,14 +123,25 @@ class BaseModelFormView(BaseView, FormView):
 
 
 class AddPostingsView(View):
-    form_class_1 = URLTextareaForm
-    form_class_2 = AddPostingForm
+    form_class_url_textarea = URLTextareaForm
+    form_class_add_posting = AddPostingForm
+    form_class_select_company = CompanyChoiceForm
     template_name = "main/bulk_add_postings.html"
+
+    def make_formset(self, num: int = 1) -> Any:
+        return inlineformset_factory(
+            Company,
+            Posting,
+            form=self.form_class_add_posting,
+            min_num=num,
+            extra=0,
+            can_delete=False,
+        )
 
     def get(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponse:
-        form = self.form_class_1()
+        form = self.form_class_url_textarea()
         return render(
             request,
             "main/form.html",
@@ -136,17 +153,31 @@ class AddPostingsView(View):
     ) -> HttpResponse:
         if request.POST.get("tool") == "urls_submitted":
             return self.process_raw_urls(request)
-        formset = formset_factory(self.form_class_2)(request.POST)
-        if not formset.is_valid():
+        add_form = AddCompanyForm(request.POST, prefix="add_company")
+        company_form = self.form_class_select_company(
+            request.POST, prefix="company"
+        )
+        formset = self.make_formset()(request.POST)
+        all_valid = (
+            company_form.is_valid()
+            and (
+                (company := company_form.cleaned_data["company"])
+                or add_form.is_valid()
+            )
+            and formset.is_valid()
+        )
+        if not all_valid:
             return render(
                 request,
                 self.template_name,
                 self.create_context(
-                    formset=formset,
+                    form=company_form, add_form=add_form, formset=formset
                 ),
             )
         new_saved_postings = []
         posting_matches = []
+        if not company:
+            company = add_form.save()
         for form in formset:
             if form.cleaned_data["include"] is False:
                 continue
@@ -155,37 +186,28 @@ class AddPostingsView(View):
             ).first():
                 posting_matches.append(posting)
                 continue
+            form.instance.company = company
             obj = form.save()
             new_saved_postings.append(obj)
         return render(
             request,
             self.template_name,
             self.create_context(
-                company=formset[0].cleaned_data.get("company"),
                 posting_matches=posting_matches,
                 new_saved_postings=new_saved_postings,
             ),
         )
 
     def create_context(self, **context: Any) -> dict[str, Any]:
-        company = context.get("company")
         if formset := context.get("formset"):
             helper = formset[0].helper
             helper.form_tag = False
             context["helper"] = helper
-            if not company:
-                company = formset[0].initial.get("company") or formset[
-                    0
-                ].cleaned_data.get("company")
-        company_name = company.name if company else ""
-        context.setdefault(
-            "form_title",
-            "Add postings" + (f" for {company_name}" if company_name else ""),
-        )
+        context.setdefault("form_title", "Add postings")
         return context
 
     def process_raw_urls(self, request: HttpRequest) -> HttpResponse:
-        form = self.form_class_1(request.POST)
+        form = self.form_class_url_textarea(request.POST)
         if not form.is_valid():
             return render(
                 request,
@@ -197,13 +219,14 @@ class AddPostingsView(View):
         urls = [u for u in urls if u]
         new_urls, posting_matches = self.check_duplicate_urls(urls)
         if new_urls:
-            formset = formset_factory(self.form_class_2, extra=0)(
-                initial=[
-                    {"url": url, "company": form.cleaned_data["company"]}
-                    for url in new_urls
-                ]
+            add_form = AddCompanyForm(prefix="add_company")
+            company_form = self.form_class_select_company(prefix="company")
+            formset = self.make_formset(num=len(new_urls))(
+                initial=[{"url": url} for url in new_urls]
             )
         else:
+            add_form = None
+            company_form = None
             formset = None
         return render(
             request,
@@ -211,6 +234,8 @@ class AddPostingsView(View):
             self.create_context(
                 posting_matches=posting_matches,
                 new_urls=new_urls,
+                add_form=add_form,
+                form=company_form,
                 formset=formset,
             ),
         )

@@ -17,6 +17,7 @@ from django.forms import (
 )
 
 from .models import Company, Posting, User
+from .utils import batched
 
 
 class UserProfileForm(ModelForm):
@@ -27,10 +28,63 @@ class UserProfileForm(ModelForm):
 
 class URLTextareaForm(Form):
     tool = CharField(widget=HiddenInput, initial="urls_submitted")
-    company: ModelChoiceField = ModelChoiceField(
-        queryset=Company.objects.all().order_by(Lower("name"))
-    )
     text = CharField(label="URL(s), one per line", widget=Textarea)
+
+
+class CompanyChoiceForm(Form):
+    company: ModelChoiceField = ModelChoiceField(
+        required=False,
+        empty_label="(Add new)",
+        queryset=Company.objects.all().order_by(Lower("name")),
+    )
+
+    @cached_property
+    def helper(self) -> FormHelper:
+        _helper = FormHelper(self)
+        _helper.form_tag = False
+        layout_items = [
+            Column(FloatingField(field_name), css_class="col-auto")
+            for field_name in self.fields.keys()
+        ]
+        _helper.layout = Layout(Row(*layout_items))
+        return _helper
+
+
+class AddCompanyForm(ModelForm):
+    class Meta:
+        model = Company
+        fields = [
+            "name",
+            "hq",
+            "url",
+            "careers_url",
+            "employees_est",
+            "employees_est_source",
+            "how_found",
+            "priority",
+            "notes",
+        ]
+        labels = {
+            "employees_est": "# employees",
+            "employees_est_source": "# employees source",
+        }
+
+    @cached_property
+    def helper(self) -> FormHelper:
+        _helper = FormHelper(self)
+        _helper.form_tag = False
+        layout_rows = []
+        for batch in batched(self.fields.keys(), n=5):
+            layout_rows.append(
+                Row(
+                    *[
+                        Column(FloatingField(field_name), css_class="col-auto")
+                        for field_name in batch
+                    ]
+                )
+            )
+        _helper.layout = Layout(*layout_rows)
+        return _helper
 
 
 class AddPostingForm(ModelForm):

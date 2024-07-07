@@ -31,6 +31,18 @@
       <div class="container-fluid ms-0 p-0">
         <div class="row">
           <div class="col">
+            {% crispy form form.helper %}
+          </div>
+        </div>
+        {% if add_form %}
+          <div class="row" id="add_form_row">
+            <div class="col">
+              {% crispy add_form add_form.helper %}
+            </div>
+          </div>
+        {% endif %}
+        <div class="row">
+          <div class="col">
             {{ formset.management_data|crispy }}
             {% crispy formset helper %}
           </div>
@@ -52,4 +64,22 @@
   {% else %}
     <a href="{{ request.path }}" class="btn btn-primary p-2">Return to URLs form</a><br />
   {% endif %}
+
+  <script type="text/javascript">
+    function showhide_add_form() {
+      enable = (document.querySelector('#id_company-company').value === "");
+      document.querySelector('#add_form_row').style.display = (
+        enable ? 'block' : 'none'
+      );
+      document.querySelectorAll('#add_form_row input').forEach(
+        (el) => el.disabled = !enable
+      );
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      showhide_add_form();
+      document.querySelector('#id_company-company').addEventListener(
+        "change", (ev) => showhide_add_form()
+      );
+    }, false);
+  </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 import re
 from contextlib import suppress
-from typing import Any
+from itertools import islice
+from typing import Any, Iterator
 from urllib.parse import ParseResult, urlparse, urlunparse
 from uuid import UUID
 
@@ -46,3 +47,11 @@ def url_to_text(url: str) -> str:
         return f"{netloc_bits}{path_bits}"
     else:
         return f"{netloc_bits}/[...]{path_bits}"
+
+
+def batched(iterable: Any, n: int) -> Iterator[Any]:
+    it = iter(iterable)
+    while True:
+        if not (batch := list(islice(it, n))):
+            return
+        yield batch
