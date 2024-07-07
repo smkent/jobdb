@@ -1,5 +1,4 @@
 from functools import cached_property
-from itertools import batched
 from typing import Any
 
 from crispy_bootstrap5.bootstrap5 import FloatingField  # type: ignore
@@ -18,6 +17,7 @@ from django.forms import (
 )
 
 from .models import Company, Posting, User
+from .utils import batched
 
 
 class UserProfileForm(ModelForm):
