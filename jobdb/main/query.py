@@ -39,6 +39,15 @@ def posting_queue_companies_count(user: User) -> QuerySet:
                 .annotate(count=Count("pk"))
                 .values("count")
             ),
+            count_in_wa=Subquery(
+                posting_queue_set(user)
+                .filter(in_wa=True)
+                .filter(company=OuterRef("pk"))
+                .order_by()
+                .values("company")
+                .annotate(count=Count("pk"))
+                .values("count")
+            ),
         )
         .filter(count__isnull=False)
         .order_by("-priority", "-count", Lower("name"))
@@ -79,6 +88,16 @@ def user_application_companies(user: User) -> QuerySet:
         queryset.annotate(
             count=Subquery(
                 posting_with_applications(user)
+                .filter(has_application=True)
+                .filter(company=OuterRef("pk"))
+                .order_by()
+                .values("company")
+                .annotate(count=Count("pk"))
+                .values("count")
+            ),
+            count_in_wa=Subquery(
+                posting_with_applications(user)
+                .filter(in_wa=True)
                 .filter(has_application=True)
                 .filter(company=OuterRef("pk"))
                 .order_by()
