@@ -1,4 +1,4 @@
-from django.db.models import Count, Exists, F, OuterRef, QuerySet, Subquery
+from django.db.models import Count, Exists, OuterRef, QuerySet, Subquery
 from django.db.models.functions import Coalesce, Lower
 
 from .models import Application, Company, Posting, User
@@ -89,13 +89,4 @@ def user_application_companies(user: User) -> QuerySet:
         )
         .filter(count__isnull=False)
         .order_by("-count", Lower("name"))
-    )
-
-
-def leaderboard_application_companies() -> QuerySet:
-    return (
-        Application.objects.annotate(company=F("posting__company__name"))
-        .values("company")
-        .annotate(application_count=Count("pk"))
-        .order_by("-application_count", "company")
     )
