@@ -78,6 +78,7 @@
     job_board_urls:
     - https://linkedin.example.com/jobs/1
     title: Principal Senior Staff Executive Delivery Boy
+    in_wa: true
     location: Anywhere, WA
     wa_jurisdiction: ''
 
@@ -91,6 +92,7 @@
     job_board_urls:
     - https://linkedin.example.com/jobs/2
     title: Senior Principal Staff Executive Code Monkey
+    in_wa: false
     location: Remote
     wa_jurisdiction: '"Remote" in posting'
 
@@ -102,6 +104,7 @@
     company: 1
     url: https://careers.example.com/jobs/3
     title: Señor Digital Sensei
+    in_wa: true
     location: Seattle, WA
 
 - model: main.posting
@@ -114,6 +117,7 @@
     job_board_urls:
     - https://linkedin.example.com/jobs/3
     title: Executive Michael Bolton
+    in_wa: true
     location: Somewhere, WA
     wa_jurisdiction: ''
 

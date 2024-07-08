@@ -1,6 +1,7 @@
 from typing import Any
 
 from rest_framework.serializers import (
+    BooleanField,
     CharField,
     HyperlinkedModelSerializer,
     HyperlinkedRelatedField,
@@ -61,6 +62,7 @@ class PostingSerializer(HyperlinkedModelSerializer):
             "job_board_urls",
             "closed",
             "closed_note",
+            "in_wa",
             "location",
             "wa_jurisdiction",
             "notes",
@@ -73,6 +75,7 @@ class ApplicationSerializer(HyperlinkedModelSerializer):
     )
     company_name = CharField(source="posting.company.name", read_only=True)
     posting_url = CharField(source="posting.url", read_only=True)
+    posting_in_wa = BooleanField(source="posting.in_wa", read_only=True)
 
     class Meta:
         model = Application
@@ -83,6 +86,7 @@ class ApplicationSerializer(HyperlinkedModelSerializer):
             "company_name",
             "posting",
             "posting_url",
+            "posting_in_wa",
             "bona_fide",
             "applied",
             "reported",

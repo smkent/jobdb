@@ -11,6 +11,7 @@ from django.db import connection
 from django.db.models import (
     CASCADE,
     PROTECT,
+    BooleanField,
     CharField,
     DateTimeField,
     ForeignKey,
@@ -174,6 +175,11 @@ class Posting(TimeStampedModel):
         blank=True,
         verbose_name="Closed Note",
         help_text="Optional reason role is closed",
+    )
+    in_wa: BooleanField = BooleanField(
+        null=False,
+        verbose_name="In WA",
+        help_text="Whether role is located in WA",
     )
     location: CharField = CharField(
         max_length=500, default=None, verbose_name="Role Location"
