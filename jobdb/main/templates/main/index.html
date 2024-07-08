@@ -34,19 +34,6 @@
                 <br />
               </div>
             {% endif %}
-            {% if your_apps_company_count.count %}
-              <div class="col">
-                <h4><a href="{% url 'application_by_company_htmx' %}">Your top applications</a></h4>
-                <ul>
-                  {% for c in your_apps_company_count|slice:"0:10" %}
-                    <li>
-                      <a href="{% url 'application_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
-                      ({{ c.count }} applications)</li>
-                  {% endfor %}
-                </ul>
-                <br />
-              </div>
-            {% endif %}
           </div>
         </div>
         <h2>Profile</h2>
