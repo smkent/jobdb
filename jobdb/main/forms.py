@@ -8,6 +8,7 @@ from django.db.models.functions import Lower
 from django.forms import (
     BooleanField,
     CharField,
+    CheckboxInput,
     Form,
     HiddenInput,
     ModelChoiceField,
@@ -97,12 +98,18 @@ class AddPostingForm(ModelForm):
             "company",
             "url",
             "title",
+            "in_wa",
             "location",
             "wa_jurisdiction",
             "notes",
             "company",
         ]
-        widgets = {"notes": TextInput, "company": HiddenInput}
+        widgets = {
+            "notes": TextInput,
+            "company": HiddenInput,
+            "in_wa": CheckboxInput,
+        }
+        help_texts = {"in_wa": None}
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -113,7 +120,7 @@ class AddPostingForm(ModelForm):
         _helper = FormHelper(self)
         layout_items = []
         for field_name in self.fields.keys():
-            if field_name == "include":
+            if field_name in {"include", "in_wa"}:
                 layout_items.append(
                     Column(
                         Field(field_name, css_class="p-3"),

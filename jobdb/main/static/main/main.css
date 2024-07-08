@@ -5,3 +5,9 @@
 .company-priority-100 {
     font-weight: lighter;
 }
+
+div.col-auto label.form-check-label {
+    display: block;
+    margin-left: 1rem;
+    padding-top: 0.5rem;
+}
