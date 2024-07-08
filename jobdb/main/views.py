@@ -85,9 +85,6 @@ class IndexView(BaseView, TemplateView):
             .annotate(count=Count("user"))
             .order_by("-count", "user__username")
         )
-        leaderboard_companies = companies_with_counts().order_by(
-            "-apps_count", Lower("name")
-        )
         return context | {
             "company": companies,
             "companies_with_postings": companies_with_postings,
@@ -100,7 +97,6 @@ class IndexView(BaseView, TemplateView):
             "posting_queue": posting_queue,
             "posting_queue_companies": posting_queue_companies,
             "leaderboard": leaderboard,
-            "leaderboard_companies": leaderboard_companies,
         }
 
 

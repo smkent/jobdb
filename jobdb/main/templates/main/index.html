@@ -85,23 +85,6 @@
             {% endfor %}
           </ul>
         {% endif %}
-        <div class="container-fluid p-0">
-          <div class="row">
-            {% if leaderboard_companies.count %}
-              <div class="col">
-                <h4>Top companies</h4>
-                <ul>
-                  {% for c in leaderboard_companies|slice:"0:10" %}
-                    <li>
-                      <a href="{% url 'posting_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
-                      ({{ c.apps_count }} total applications)</li>
-                  {% endfor %}
-                </ul>
-                <br />
-              </div>
-            {% endif %}
-          </div>
-        </div>
       </div>
     </div>
   </div>
