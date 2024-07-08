@@ -17,25 +17,6 @@
           <br />
         {% endif %}
         <br />
-        <div class="container-fluid p-0">
-          <div class="row">
-            {% if posting_queue_companies.count %}
-              <div class="col">
-                <h4><a href="{% url 'queue_by_company_htmx' %}">Top available postings</a></h4>
-                <ul>
-                  {% for c in posting_queue_companies|slice:"0:10" %}
-                    <li><span class="company-priority-{{ c.priority }}">
-                      <a href="{% url 'queue_htmx' %}?company={{ c.name }}">{{ c.name }}</a>
-                      ({{ c.count }} postings)
-                    </span>
-                    </li>
-                  {% endfor %}
-                </ul>
-                <br />
-              </div>
-            {% endif %}
-          </div>
-        </div>
         <h2>Profile</h2>
         <a href="{% url 'personal:main_apikey_changelist' %}">API keys</a><br />
         <a href="{% url 'user_profile_edit' %}">Edit user profile</a><br />
