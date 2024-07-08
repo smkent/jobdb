@@ -49,7 +49,7 @@
             {% for u in leaderboard|slice:"0:10" %}
               <li>
                 <b>{{ u.user__first_name|default:u.user__username }}</b>
-                ({{ u.count }} applications)</li>
+                ({{ u.count }} companies applied)</li>
             {% endfor %}
           </ul>
         {% endif %}

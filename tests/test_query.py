@@ -1,7 +1,11 @@
 import pytest
 
 from jobdb.main.models import User
-from jobdb.main.query import posting_queue_companies_count, posting_queue_set
+from jobdb.main.query import (
+    posting_queue_companies_count,
+    posting_queue_set,
+    user_companies_leaderboard,
+)
 
 
 @pytest.mark.parametrize(
@@ -29,3 +33,12 @@ def test_posting_queue_companies_count(
     user = User.objects.get(username=username)
     response = posting_queue_companies_count(user).values("name", "count")
     assert list(response.values_list("name", "count")) == expected_counts
+
+
+def test_user_companies_leaderboard() -> None:
+    response = user_companies_leaderboard()
+    assert list(response) == [
+        {"user__first_name": "Luke", "user__username": "luke", "count": 2},
+        {"user__first_name": "Han", "user__username": "solo", "count": 1},
+        {"user__first_name": "Darth", "user__username": "vader", "count": 1},
+    ]

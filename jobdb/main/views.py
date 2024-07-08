@@ -1,7 +1,7 @@
 from typing import Any, Sequence
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Case, Count, F, Max, Model, QuerySet, When
+from django.db.models import Case, F, Max, Model, QuerySet, When
 from django.db.models.functions import Lower
 from django.forms import ModelForm, inlineformset_factory
 from django.http import HttpRequest, HttpResponse
@@ -33,6 +33,7 @@ from .query import (
     posting_queue_companies_count,
     posting_queue_set,
     user_application_companies,
+    user_companies_leaderboard,
 )
 from .tables import (
     ApplicationCompanyCountHTMxTable,
@@ -80,11 +81,6 @@ class IndexView(BaseView, TemplateView):
             your_apps.count()
             - your_apps.filter(reported__isnull=False).count()
         )
-        leaderboard = (
-            Application.objects.values("user__username", "user__first_name")
-            .annotate(count=Count("user"))
-            .order_by("-count", "user__username")
-        )
         return context | {
             "company": companies,
             "companies_with_postings": companies_with_postings,
@@ -96,7 +92,7 @@ class IndexView(BaseView, TemplateView):
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
             "posting_queue_companies": posting_queue_companies,
-            "leaderboard": leaderboard,
+            "leaderboard": user_companies_leaderboard(),
         }
 
 

@@ -90,3 +90,11 @@ def user_application_companies(user: User) -> QuerySet:
         .filter(count__isnull=False)
         .order_by("-count", Lower("name"))
     )
+
+
+def user_companies_leaderboard() -> QuerySet:
+    return (
+        Application.objects.values("user__username", "user__first_name")
+        .annotate(count=Count("posting__company", distinct=True))
+        .order_by("-count", "user__username")
+    )
