@@ -194,11 +194,12 @@ class PostingAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
         "company_name",
         "title",
         "url_clickable",
+        "in_wa",
         "closed",
         "created",
     ]
     list_display_links = ["title"]
-    list_filter = [PostingClosedFilter]
+    list_filter = [PostingClosedFilter, "in_wa"]
     ordering = ["company__name", "title", "url"]
     actions = ["mark_applied", "mark_closed"]
     search_fields = ["company__name", "title", "url"]
@@ -238,12 +239,13 @@ class ApplicationAdminBase(ImportExportMixin, ExportActionMixin, ModelAdmin):
         "company_name",
         "role_title",
         "url_clickable",
+        "in_wa",
         "applied",
         "reported",
         "bona_fide",
     ]
     list_display_links = ["role_title"]
-    list_filter = ["reported", "bona_fide"]
+    list_filter = ["reported", "bona_fide", "posting__in_wa"]
     ordering = [
         "-applied",
         "user",
@@ -276,6 +278,10 @@ class ApplicationAdminBase(ImportExportMixin, ExportActionMixin, ModelAdmin):
         return clickable_url_html(
             obj.posting.url, display=obj.posting.url_text
         )
+
+    @display(description="In WA", boolean=True)
+    def in_wa(self, obj: Application) -> Any:
+        return obj.posting.in_wa
 
     @display(description="Application")
     def summary(self, obj: Application) -> str:
