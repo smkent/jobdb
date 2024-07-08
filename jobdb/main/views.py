@@ -1,7 +1,7 @@
 from typing import Any, Sequence
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Case, Count, F, Max, Model, QuerySet, When
+from django.db.models import Case, F, Max, Model, QuerySet, When
 from django.db.models.functions import Lower
 from django.forms import ModelForm, inlineformset_factory
 from django.http import HttpRequest, HttpResponse
@@ -29,16 +29,15 @@ from .forms import (
 )
 from .models import Application, Company, Posting, User
 from .query import (
-    companies_completion_stats,
     companies_with_counts,
     posting_queue_companies_count,
     posting_queue_set,
     user_application_companies,
+    user_companies_leaderboard,
 )
 from .tables import (
     ApplicationCompanyCountHTMxTable,
     ApplicationHTMxTable,
-    CompanyCompletionStatsHTMxTable,
     CompanyHTMxTable,
     PostingHTMxTable,
     QueueCompanyCountHTMxTable,
@@ -82,14 +81,6 @@ class IndexView(BaseView, TemplateView):
             your_apps.count()
             - your_apps.filter(reported__isnull=False).count()
         )
-        leaderboard = (
-            Application.objects.values("user__username", "user__first_name")
-            .annotate(count=Count("user"))
-            .order_by("-count", "user__username")
-        )
-        leaderboard_companies = companies_with_counts().order_by(
-            "-apps_count", Lower("name")
-        )
         return context | {
             "company": companies,
             "companies_with_postings": companies_with_postings,
@@ -101,8 +92,7 @@ class IndexView(BaseView, TemplateView):
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
             "posting_queue_companies": posting_queue_companies,
-            "leaderboard": leaderboard,
-            "leaderboard_companies": leaderboard_companies,
+            "leaderboard": user_companies_leaderboard(),
         }
 
 
@@ -312,19 +302,6 @@ class ApplicationCompanyCountHTMxTableView(BaseHTMxTableView):
 
     def get_queryset(self) -> QuerySet:
         return user_application_companies(self.request.user)
-
-
-class CompanyCompletionStatsHTMxTableView(BaseHTMxTableView):
-    template_table_title = "Company total applications completion"
-    template_table_htmx_route = "company_completion_stats_htmx"
-    table_class = CompanyCompletionStatsHTMxTable
-    filterset_class = CompanyFilter
-    export_name = "company_completion_stats"
-
-    def get_queryset(self) -> QuerySet:
-        return companies_completion_stats(
-            order_by=["-priority", "-queue_count"]
-        )
 
 
 class QueueHTMxTableView(BaseHTMxTableView):

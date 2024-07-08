@@ -31,14 +31,15 @@ class DateTimeColumn(BaseDateTimeColumn):
 
 
 class QueueCompanyCountHTMxTable(Table):
-    name = Column(attrs={"th": {"style": "width: 200px;"}})
+    name = Column()
     count = Column(verbose_name="Postings")
+    count_in_wa = Column(verbose_name="Count In WA")
 
     class Meta:
         model = Company
         template_name = "main/bootstrap_htmx.html"
-        sequence = ["name", "count", "priority"]
-        fields = ["name", "count", "priority"]
+        sequence = ["name", "count", "count_in_wa", "priority"]
+        fields = ["name", "count", "count_in_wa", "priority"]
         row_attrs = COMPANY_ROW_ATTRS
 
     def render_name(self, value: str, record: Any) -> str:
@@ -57,14 +58,15 @@ class QueueCompanyCountHTMxTable(Table):
 
 
 class ApplicationCompanyCountHTMxTable(Table):
-    name = Column(attrs={"th": {"style": "width: 200px;"}})
+    name = Column()
     count = Column(verbose_name="Applications")
+    count_in_wa = Column(verbose_name="Count In WA")
 
     class Meta:
         model = Company
         template_name = "main/bootstrap_htmx.html"
-        sequence = ["name", "count"]
-        fields = ["name", "count"]
+        sequence = ["name", "count", "count_in_wa"]
+        fields = ["name", "count", "count_in_wa"]
 
     def render_name(self, value: str, record: Any) -> str:
         portal_url = reverse("personal:main_company_change", args=(record.pk,))
@@ -80,47 +82,15 @@ class ApplicationCompanyCountHTMxTable(Table):
     def value_count(self, value: Any) -> Any:
         return value
 
+    def render_count_in_wa(self, value: Any, record: Any) -> str:
+        url = (
+            reverse("application_htmx")
+            + f"?company={record.name}&amp;in_wa=true"  # noqa
+        )
+        return format_html(f'<a href="{url}">{value}</a>')
 
-class CompanyCompletionStatsHTMxTable(Table):
-    name = Column(attrs={"th": {"style": "width: 200px;"}})
-    apps_count = Column(verbose_name="Total applications")
-    reported_apps_count = Column(verbose_name="Reported applications")
-    queue_count = Column(verbose_name="Total queued")
-    max_apps = Column(verbose_name="Total possible applications")
-    apps_percent = Column(verbose_name="Percent complete")
-
-    class Meta:
-        model = Company
-        template_name = "main/bootstrap_htmx.html"
-        sequence = [
-            "name",
-            "priority",
-            "apps_count",
-            "reported_apps_count",
-            "queue_count",
-            "max_apps",
-            "apps_percent",
-        ]
-        fields = [
-            "name",
-            "priority",
-            "apps_count",
-            "reported_apps_count",
-            "queue_count",
-            "max_apps",
-            "apps_percent",
-        ]
-        row_attrs = COMPANY_ROW_ATTRS
-
-    def render_name(self, value: str, record: Any) -> str:
-        portal_url = reverse("personal:main_company_change", args=(record.pk,))
-        return format_html(f'<a href="{portal_url}">{value}</a>')
-
-    def value_name(self, value: str) -> str:
+    def value_count_in_wa(self, value: Any) -> Any:
         return value
-
-    def render_apps_percent(self, value: float) -> str:
-        return f"{value*100: .1f}%"
 
 
 class CompanyHTMxTable(Table):

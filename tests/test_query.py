@@ -1,10 +1,10 @@
 import pytest
 
-from jobdb.main.models import Company, User
+from jobdb.main.models import User
 from jobdb.main.query import (
-    leaderboard_application_companies,
     posting_queue_companies_count,
     posting_queue_set,
+    user_companies_leaderboard,
 )
 
 
@@ -17,24 +17,6 @@ def test_posting_with_applications(username: str, expected_queue: int) -> None:
         posting_queue_set(user=user).filter(company__name="Initech").count()
         == expected_queue
     )
-
-
-def test_companies_with_applications() -> None:
-    Company.objects.create(
-        name="Foo, Inc",
-        hq="Nowhere",
-        employees_est="15",
-        employees_est_source="LinkedIn",
-        url="https://example.com/1",
-        careers_url="https://example.com/1/1",
-    )
-    results = {
-        row["company"]: row["application_count"]
-        for row in leaderboard_application_companies().values(
-            "company", "application_count"
-        )
-    }
-    assert results == {"Initech": 6, "Initrode": 1}
 
 
 @pytest.mark.parametrize(
@@ -51,3 +33,12 @@ def test_posting_queue_companies_count(
     user = User.objects.get(username=username)
     response = posting_queue_companies_count(user).values("name", "count")
     assert list(response.values_list("name", "count")) == expected_counts
+
+
+def test_user_companies_leaderboard() -> None:
+    response = user_companies_leaderboard()
+    assert list(response) == [
+        {"user__first_name": "Luke", "user__username": "luke", "count": 2},
+        {"user__first_name": "Han", "user__username": "solo", "count": 1},
+        {"user__first_name": "Darth", "user__username": "vader", "count": 1},
+    ]
