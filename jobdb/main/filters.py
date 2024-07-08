@@ -66,6 +66,9 @@ class PostingFilter(FilterSet):
     company = HiddenCharFilter(
         field_name="company__name", lookup_expr="iexact", label=""
     )
+    in_wa = BooleanFilter(
+        field_name="in_wa", method="filter_in_wa", label="In WA"
+    )
 
     class Meta:
         model = Posting
@@ -80,6 +83,11 @@ class PostingFilter(FilterSet):
         for field in ["company__name", "url", "notes"]:
             condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
         return queryset.filter(condition)
+
+    def filter_in_wa(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
+        return queryset.filter(in_wa=value)
 
 
 class AllPostingFilter(PostingFilter):
@@ -102,6 +110,9 @@ class ApplicationFilter(FilterSet):
     company = HiddenCharFilter(
         field_name="posting__company__name", lookup_expr="iexact", label=""
     )
+    in_wa = BooleanFilter(
+        field_name="in_wa", method="filter_in_wa", label="In WA"
+    )
     reported = BooleanFilter(
         field_name="reported", method="filter_reported", label="Reported"
     )
@@ -119,6 +130,11 @@ class ApplicationFilter(FilterSet):
         for field in ["posting__company__name", "posting__url", "notes"]:
             condition.add(Q(**{f"{field}__icontains": str(value)}), Q.OR)
         return queryset.filter(condition)
+
+    def filter_in_wa(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
+        return queryset.filter(posting__in_wa=value)
 
     def filter_reported(
         self, queryset: QuerySet, name: str, value: bool
