@@ -81,48 +81,6 @@ class ApplicationCompanyCountHTMxTable(Table):
         return value
 
 
-class CompanyCompletionStatsHTMxTable(Table):
-    name = Column(attrs={"th": {"style": "width: 200px;"}})
-    apps_count = Column(verbose_name="Total applications")
-    reported_apps_count = Column(verbose_name="Reported applications")
-    queue_count = Column(verbose_name="Total queued")
-    max_apps = Column(verbose_name="Total possible applications")
-    apps_percent = Column(verbose_name="Percent complete")
-
-    class Meta:
-        model = Company
-        template_name = "main/bootstrap_htmx.html"
-        sequence = [
-            "name",
-            "priority",
-            "apps_count",
-            "reported_apps_count",
-            "queue_count",
-            "max_apps",
-            "apps_percent",
-        ]
-        fields = [
-            "name",
-            "priority",
-            "apps_count",
-            "reported_apps_count",
-            "queue_count",
-            "max_apps",
-            "apps_percent",
-        ]
-        row_attrs = COMPANY_ROW_ATTRS
-
-    def render_name(self, value: str, record: Any) -> str:
-        portal_url = reverse("personal:main_company_change", args=(record.pk,))
-        return format_html(f'<a href="{portal_url}">{value}</a>')
-
-    def value_name(self, value: str) -> str:
-        return value
-
-    def render_apps_percent(self, value: float) -> str:
-        return f"{value*100: .1f}%"
-
-
 class CompanyHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
     hq = Column(visible=False)

@@ -29,7 +29,6 @@ from .forms import (
 )
 from .models import Application, Company, Posting, User
 from .query import (
-    companies_completion_stats,
     companies_with_counts,
     posting_queue_companies_count,
     posting_queue_set,
@@ -38,7 +37,6 @@ from .query import (
 from .tables import (
     ApplicationCompanyCountHTMxTable,
     ApplicationHTMxTable,
-    CompanyCompletionStatsHTMxTable,
     CompanyHTMxTable,
     PostingHTMxTable,
     QueueCompanyCountHTMxTable,
@@ -312,19 +310,6 @@ class ApplicationCompanyCountHTMxTableView(BaseHTMxTableView):
 
     def get_queryset(self) -> QuerySet:
         return user_application_companies(self.request.user)
-
-
-class CompanyCompletionStatsHTMxTableView(BaseHTMxTableView):
-    template_table_title = "Company total applications completion"
-    template_table_htmx_route = "company_completion_stats_htmx"
-    table_class = CompanyCompletionStatsHTMxTable
-    filterset_class = CompanyFilter
-    export_name = "company_completion_stats"
-
-    def get_queryset(self) -> QuerySet:
-        return companies_completion_stats(
-            order_by=["-priority", "-queue_count"]
-        )
 
 
 class QueueHTMxTableView(BaseHTMxTableView):
