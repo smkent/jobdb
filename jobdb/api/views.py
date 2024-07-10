@@ -20,7 +20,11 @@ from rest_framework.views import APIView as BaseAPIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from ..main.models import Application, Posting, User
-from ..main.query import companies_with_counts, posting_queue_set
+from ..main.query import (
+    companies_with_counts,
+    company_posting_queue_set,
+    posting_queue_set,
+)
 from . import serializers
 from .auth import APIKeyAuthentication
 from .filters import ApplicationFilter, CompanyFilter, PostingFilter
@@ -87,13 +91,19 @@ class PostingByURLViewSet(BasePostingViewSet, RetrieveModelMixin):
             return get_object_or_404(qs)  # type: ignore
 
 
-class PostingQueueViewSet(BasePostingViewSet, ListModelMixin):
+class FullPostingQueueViewSet(BasePostingViewSet, ListModelMixin):
     filterset_class = PostingFilter
     serializer_class = serializers.PostingSerializer
 
     def get_queryset(self) -> QuerySet:
         assert isinstance(self.request.user, User)
         return posting_queue_set(self.request.user, ordered=True)
+
+
+class PostingQueueViewSet(FullPostingQueueViewSet):
+    def get_queryset(self) -> QuerySet:
+        assert isinstance(self.request.user, User)
+        return company_posting_queue_set(self.request.user)
 
 
 class BaseApplicationViewSet(APIViewSet):
