@@ -1,5 +1,14 @@
-from django.db.models import Count, Exists, OuterRef, QuerySet, Subquery
-from django.db.models.functions import Coalesce, Lower
+from django.db.models import (
+    Count,
+    Exists,
+    F,
+    OuterRef,
+    Q,
+    QuerySet,
+    Subquery,
+    Window,
+)
+from django.db.models.functions import Coalesce, Lower, RowNumber
 
 from .models import Application, Company, Posting, User
 
@@ -24,6 +33,25 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
     if ordered:
         qs = qs.order_by("-company__priority", Lower("company__name"), "pk")
     return qs
+
+
+def company_posting_queue_set(user: User) -> QuerySet:
+    qs = (
+        posting_with_applications(user)
+        .filter(Q(has_application=True) | Q(closed=None))
+        .annotate(
+            row_number=Window(
+                expression=RowNumber(),
+                partition_by=[F("company")],
+                order_by=["-has_application", "-in_wa", "-created"],
+            )
+        )
+        .filter(row_number__lte=2)
+        .filter(has_application=False)
+    )
+    return qs.order_by(
+        "-company__priority", Lower("company__name"), "row_number", "pk"
+    )
 
 
 def posting_queue_companies_count(user: User) -> QuerySet:
