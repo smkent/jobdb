@@ -16,6 +16,9 @@ router.register(
 router.register(r"postings", views.PostingViewSet)
 router.register(r"queue", views.PostingQueueViewSet, "posting-queue")
 router.register(
+    r"queue/full", views.FullPostingQueueViewSet, "full-posting-queue"
+)
+router.register(
     r"postings/by_url", views.PostingByURLViewSet, "posting-by-url"
 )
 router.register(r"applications", views.ApplicationViewSet)
