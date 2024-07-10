@@ -9,7 +9,7 @@ from jobdb.main.query import (
 
 
 @pytest.mark.parametrize(
-    ["username", "expected_queue"], [("luke", 0), ("solo", 1), ("vader", 2)]
+    ["username", "expected_queue"], [("luke", 0), ("solo", 2), ("vader", 3)]
 )
 def test_posting_with_applications(username: str, expected_queue: int) -> None:
     user = User.objects.get(username=username)
@@ -23,8 +23,8 @@ def test_posting_with_applications(username: str, expected_queue: int) -> None:
     ["username", "expected_counts"],
     [
         ("luke", []),
-        ("solo", [("Initech", 1), ("Initrode", 1)]),
-        ("vader", [("Initech", 2), ("Initrode", 1)]),
+        ("solo", [("Initech", 2), ("Initrode", 1)]),
+        ("vader", [("Initech", 3), ("Initrode", 1)]),
     ],
 )
 def test_posting_queue_companies_count(
