@@ -36,9 +36,12 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
 
 
 def company_posting_queue_set(user: User) -> QuerySet:
-    qs = (
-        posting_with_applications(user)
-        .filter(Q(has_application=True) | Q(closed=None))
+    base_qs = posting_with_applications(user)
+    windowed_qs = (
+        base_qs.filter(
+            Q(has_application=True)
+            | (Q(has_application=False) & Q(closed=None))
+        )
         .annotate(
             row_number=Window(
                 expression=RowNumber(),
@@ -46,11 +49,14 @@ def company_posting_queue_set(user: User) -> QuerySet:
                 order_by=["-has_application", "-in_wa", "-created"],
             )
         )
+        .order_by("row_number")
         .filter(row_number__lte=2)
-        .filter(has_application=False)
+    )
+    qs = base_qs.filter(
+        pk__in=Subquery(windowed_qs.values("pk")), has_application=False
     )
     return qs.order_by(
-        "-company__priority", Lower("company__name"), "row_number", "pk"
+        "-company__priority", Lower("company__name"), "-in_wa", "pk"
     )
 
 
@@ -59,25 +65,31 @@ def posting_queue_companies_count(user: User) -> QuerySet:
     assert isinstance(queryset, QuerySet)
     return (
         queryset.annotate(
-            count=Subquery(
-                posting_queue_set(user)
-                .filter(company=OuterRef("pk"))
-                .order_by()
-                .values("company")
-                .annotate(count=Count("pk"))
-                .values("count")
+            count=Coalesce(
+                Subquery(
+                    company_posting_queue_set(user)
+                    .filter(company=OuterRef("pk"))
+                    .order_by()
+                    .values("company")
+                    .annotate(count=Count("pk"))
+                    .values("count")
+                ),
+                0,
             ),
-            count_in_wa=Subquery(
-                posting_queue_set(user)
-                .filter(in_wa=True)
-                .filter(company=OuterRef("pk"))
-                .order_by()
-                .values("company")
-                .annotate(count=Count("pk"))
-                .values("count")
+            count_in_wa=Coalesce(
+                Subquery(
+                    company_posting_queue_set(user)
+                    .filter(in_wa=True)
+                    .filter(company=OuterRef("pk"))
+                    .order_by()
+                    .values("company")
+                    .annotate(count=Count("pk"))
+                    .values("count")
+                ),
+                0,
             ),
         )
-        .filter(count__isnull=False)
+        .filter(count__gt=0)
         .order_by("-priority", "-count", Lower("name"))
     )
 
@@ -114,27 +126,33 @@ def user_application_companies(user: User) -> QuerySet:
     assert isinstance(queryset, QuerySet)
     return (
         queryset.annotate(
-            count=Subquery(
-                posting_with_applications(user)
-                .filter(has_application=True)
-                .filter(company=OuterRef("pk"))
-                .order_by()
-                .values("company")
-                .annotate(count=Count("pk"))
-                .values("count")
+            count=Coalesce(
+                Subquery(
+                    posting_with_applications(user)
+                    .filter(has_application=True)
+                    .filter(company=OuterRef("pk"))
+                    .order_by()
+                    .values("company")
+                    .annotate(count=Count("pk"))
+                    .values("count")
+                ),
+                0,
             ),
-            count_in_wa=Subquery(
-                posting_with_applications(user)
-                .filter(in_wa=True)
-                .filter(has_application=True)
-                .filter(company=OuterRef("pk"))
-                .order_by()
-                .values("company")
-                .annotate(count=Count("pk"))
-                .values("count")
+            count_in_wa=Coalesce(
+                Subquery(
+                    posting_with_applications(user)
+                    .filter(in_wa=True)
+                    .filter(has_application=True)
+                    .filter(company=OuterRef("pk"))
+                    .order_by()
+                    .values("company")
+                    .annotate(count=Count("pk"))
+                    .values("count")
+                ),
+                0,
             ),
         )
-        .filter(count__isnull=False)
+        .filter(count__gt=0)
         .order_by("-count", Lower("name"))
     )
 

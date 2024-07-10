@@ -28,20 +28,10 @@ def test_posting_with_applications(username: str, expected_queue: int) -> None:
             "solo",
             [
                 {
-                    "company__name": "Initech",
-                    "pk": 13,
-                    "title": "General Major Webelos",
-                },
-                {
-                    "company__name": "Initech",
-                    "pk": 12,
-                    "title": "Señor Digital Sensei",
-                },
-                {
                     "company__name": "Initrode",
                     "pk": 20,
                     "title": "Executive Michael Bolton",
-                },
+                }
             ],
         ),
         (
@@ -51,11 +41,6 @@ def test_posting_with_applications(username: str, expected_queue: int) -> None:
                     "company__name": "Initech",
                     "pk": 13,
                     "title": "General Major Webelos",
-                },
-                {
-                    "company__name": "Initech",
-                    "pk": 12,
-                    "title": "Señor Digital Sensei",
                 },
                 {
                     "company__name": "Initrode",
@@ -82,8 +67,8 @@ def test_posting_queue(username: str, expected_queue: int) -> None:
     ["username", "expected_counts"],
     [
         ("luke", []),
-        ("solo", [("Initech", 2), ("Initrode", 1)]),
-        ("vader", [("Initech", 3), ("Initrode", 1)]),
+        ("solo", [("Initrode", 1)]),
+        ("vader", [("Initech", 1), ("Initrode", 1)]),
     ],
 )
 def test_posting_queue_companies_count(
