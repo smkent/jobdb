@@ -36,9 +36,9 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
 
 
 def company_posting_queue_set(user: User) -> QuerySet:
-    qs = (
-        posting_with_applications(user)
-        .filter(
+    base_qs = posting_with_applications(user)
+    windowed_qs = (
+        base_qs.filter(
             Q(has_application=True)
             | (Q(has_application=False) & Q(closed=None))
         )
@@ -49,11 +49,14 @@ def company_posting_queue_set(user: User) -> QuerySet:
                 order_by=["-has_application", "-in_wa", "-created"],
             )
         )
+        .order_by("row_number")
         .filter(row_number__lte=2)
-        .filter(has_application=False)
+    )
+    qs = base_qs.filter(
+        pk__in=Subquery(windowed_qs.values("pk")), has_application=False
     )
     return qs.order_by(
-        "-company__priority", Lower("company__name"), "row_number", "pk"
+        "-company__priority", Lower("company__name"), "-in_wa", "pk"
     )
 
 
