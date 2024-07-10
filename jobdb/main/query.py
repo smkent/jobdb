@@ -66,7 +66,7 @@ def posting_queue_companies_count(user: User) -> QuerySet:
     return (
         queryset.annotate(
             count=Subquery(
-                posting_queue_set(user)
+                company_posting_queue_set(user)
                 .filter(company=OuterRef("pk"))
                 .order_by()
                 .values("company")
@@ -74,7 +74,7 @@ def posting_queue_companies_count(user: User) -> QuerySet:
                 .values("count")
             ),
             count_in_wa=Subquery(
-                posting_queue_set(user)
+                company_posting_queue_set(user)
                 .filter(in_wa=True)
                 .filter(company=OuterRef("pk"))
                 .order_by()
