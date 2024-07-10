@@ -38,7 +38,10 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
 def company_posting_queue_set(user: User) -> QuerySet:
     qs = (
         posting_with_applications(user)
-        .filter(Q(has_application=True) | Q(closed=None))
+        .filter(
+            Q(has_application=True)
+            | (Q(has_application=False) & Q(closed=None))
+        )
         .annotate(
             row_number=Window(
                 expression=RowNumber(),
