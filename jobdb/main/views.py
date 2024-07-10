@@ -30,6 +30,7 @@ from .forms import (
 from .models import Application, Company, Posting, User
 from .query import (
     companies_with_counts,
+    company_posting_queue_set,
     posting_queue_companies_count,
     posting_queue_set,
     user_application_companies,
@@ -74,6 +75,7 @@ class IndexView(BaseView, TemplateView):
         your_apps = Application.objects.filter(user=self.request.user)
         your_apps_company_count = user_application_companies(self.request.user)
         posting_queue = posting_queue_set(self.request.user, ordered=False)
+        company_posting_queue = company_posting_queue_set(self.request.user)
         posting_queue_companies = posting_queue_companies_count(
             self.request.user
         )
@@ -91,6 +93,7 @@ class IndexView(BaseView, TemplateView):
             "your_apps_company_count": your_apps_company_count,
             "unreported_apps_count": unreported_apps_count,
             "posting_queue": posting_queue,
+            "company_posting_queue": company_posting_queue,
             "posting_queue_companies": posting_queue_companies,
             "leaderboard": user_companies_leaderboard(),
         }
@@ -304,16 +307,25 @@ class ApplicationCompanyCountHTMxTableView(BaseHTMxTableView):
         return user_application_companies(self.request.user)
 
 
-class QueueHTMxTableView(BaseHTMxTableView):
-    template_table_title = "Postings queue"
-    template_table_htmx_route = "queue_htmx"
+class FullQueueHTMxTableView(BaseHTMxTableView):
+    template_table_title = "Full postings queue"
+    template_table_htmx_route = "full_queue_htmx"
     table_class = QueueHTMxTable
     filterset_class = PostingFilter
-    export_name = "postings_queue"
+    export_name = "full_postings_queue"
     action_links = [("Add postings", reverse_lazy("add_postings"))]
 
     def get_queryset(self) -> QuerySet:
-        return posting_queue_set(self.request.user, ordered=True)
+        return posting_queue_set(self.request.user)
+
+
+class QueueHTMxTableView(FullQueueHTMxTableView):
+    template_table_title = "Postings queue"
+    template_table_htmx_route = "queue_htmx"
+    export_name = "postings_queue"
+
+    def get_queryset(self) -> QuerySet:
+        return company_posting_queue_set(self.request.user)
 
 
 class PostingHTMxTableView(QueueHTMxTableView):

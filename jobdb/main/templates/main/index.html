@@ -5,8 +5,9 @@
     <div class="row">
       <div class="col">
         <h2>Your Applications</h2>
-        <a href="{% url 'queue_htmx' %}">Available postings: <b>{{ posting_queue.count }}</b></a>
+        <a href="{% url 'queue_htmx' %}">Postings queue: <b>{{ company_posting_queue.count }}</b></a>
         (<a href="{% url 'queue_by_company_htmx' %}">{{ posting_queue_companies.count }} companies</a>)<br />
+        <a href="{% url 'full_queue_htmx' %}">All available postings: <b>{{ posting_queue.count }}</b></a><br />
         <a href="{% url 'application_htmx' %}">Your applications: <b>{{ your_apps.count }}</b></a>
         {% if unreported_apps_count %}
           (<a href="{% url 'application_htmx' %}?reported=false"><b>{{ unreported_apps_count }}</b> unreported</a>)
