@@ -48,6 +48,11 @@ class CompanyFilter(FilterSet):
     available = BooleanFilter(
         field_name="available", method="filter_available", label="Available"
     )
+    wa_available = BooleanFilter(
+        field_name="wa_available",
+        method="filter_wa_available",
+        label="WA Available",
+    )
 
     class Meta:
         model = Company
@@ -69,6 +74,13 @@ class CompanyFilter(FilterSet):
         if value:
             return queryset.filter(available_count__gt=0)
         return queryset.filter(available_count=0)
+
+    def filter_wa_available(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
+        if value:
+            return queryset.filter(wa_available_count__gt=0)
+        return queryset.filter(wa_available_count=0)
 
 
 class PostingFilter(FilterSet):
