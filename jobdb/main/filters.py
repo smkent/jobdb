@@ -45,6 +45,9 @@ class FilterSet(BaseFilterSet):
 
 class CompanyFilter(FilterSet):
     query = CharFilter(method="universal_search", label="Search")
+    available = BooleanFilter(
+        field_name="available", method="filter_available", label="Available"
+    )
 
     class Meta:
         model = Company
@@ -59,6 +62,13 @@ class CompanyFilter(FilterSet):
         for field in ["name", "url", "notes"]:
             condition.add(Q(**{f"{field}__icontains": value}), Q.OR)
         return queryset.filter(condition)
+
+    def filter_available(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
+        if value:
+            return queryset.filter(available_count__gt=0)
+        return queryset.filter(available_count=0)
 
 
 class PostingFilter(FilterSet):

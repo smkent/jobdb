@@ -69,8 +69,8 @@ class IndexView(BaseView, TemplateView):
         companies = Company.objects.all()
         companies_with_postings = (
             companies_with_counts()
-            .filter(posting_count__gt=0)
-            .order_by("-posting_count", Lower("name"))
+            .filter(open_posting_count__gt=0)
+            .order_by("-open_posting_count", Lower("name"))
         )
         your_apps = Application.objects.filter(user=self.request.user)
         your_apps_company_count = user_application_companies(self.request.user)
