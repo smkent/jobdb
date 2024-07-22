@@ -139,6 +139,35 @@ def companies_with_counts() -> QuerySet:
     return queryset
 
 
+def companies_with_wa_counts() -> QuerySet:
+    queryset = companies_with_counts().annotate(
+        wa_open_posting_count=Coalesce(
+            Subquery(
+                Posting.objects.filter(in_wa=True, closed=None)
+                .filter(company=OuterRef("pk"))
+                .values("company")
+                .annotate(count=Count("pk"))
+                .values("count")
+            ),
+            0,
+        ),
+        wa_apps_count=Coalesce(
+            Subquery(
+                Application.objects.filter(
+                    posting__in_wa=True, posting__company=OuterRef("pk")
+                )
+                .values("posting__company")
+                .annotate(count=Count("pk"))
+                .values("count"),
+            ),
+            0,
+        ),
+        wa_available_count=F("wa_open_posting_count") + F("wa_apps_count"),
+    )
+    assert isinstance(queryset, QuerySet)
+    return queryset
+
+
 def user_application_companies(user: User) -> QuerySet:
     queryset = Company.objects.all()
     assert isinstance(queryset, QuerySet)
