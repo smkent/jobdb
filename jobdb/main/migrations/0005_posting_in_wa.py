@@ -10,7 +10,7 @@ from django.db.models.expressions import Value
 from django.db.models.functions import Lower
 
 
-def set_my_defaults(
+def set_in_wa(
     apps: StateApps, schema_editor: BaseDatabaseSchemaEditor
 ) -> None:
     Posting = apps.get_model("main", "Posting")  # noqa
@@ -36,7 +36,7 @@ class Migration(BaseMigration):
                 help_text="Whether role is located in WA",
             ),
         ),
-        RunPython(set_my_defaults, RunPython.noop),
+        RunPython(set_in_wa, RunPython.noop),
         AlterField(
             model_name="posting",
             name="in_wa",

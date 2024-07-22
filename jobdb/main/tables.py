@@ -108,9 +108,11 @@ class CompanyHTMxTable(Table):
         empty_values=(),
         attrs={"th": {"style": "width: 200px;"}},
     )
-    employees_est = Column(
+    employees_est = Column(visible=False)
+    employees_est_num = Column(
         verbose_name="# employees",
         attrs={"th": {"style": "width: 200px;"}},
+        exclude_from_export=True,
     )
     employees_est_source = Column(visible=False)
     how_found = Column(visible=False)
@@ -130,6 +132,7 @@ class CompanyHTMxTable(Table):
             "posting_count",
             "apps_count",
             "employees_est",
+            "employees_est_num",
             "employees_est_source",
             "how_found",
             "created",
@@ -144,6 +147,7 @@ class CompanyHTMxTable(Table):
             "posting_count",
             "apps_count",
             "employees_est",
+            "employees_est_num",
             "employees_est_source",
             "how_found",
             "created",
@@ -191,6 +195,12 @@ class CompanyHTMxTable(Table):
         return format_html(f'<a href="{url}">{value}</a>')
 
     def value_posting_count(self, value: Any) -> Any:
+        return value
+
+    def render_employees_est_num(self, value: Any, record: Any) -> str:
+        return str(record.employees_est)
+
+    def value_employees_est_num(self, value: Any) -> Any:
         return value
 
 
