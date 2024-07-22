@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import binascii
 import os
+import re
+from contextlib import suppress
 from typing import Any
 from urllib.parse import urlparse
 
@@ -97,6 +99,12 @@ class Company(TimeStampedModel):
     employees_est: CharField = CharField(
         max_length=100,
         default=None,
+        verbose_name="Estimated number or range of employees",
+    )
+    employees_est_num: IntegerField = IntegerField(
+        default=None,
+        null=True,
+        blank=True,
         verbose_name="Estimated number of employees",
     )
     employees_est_source: CharField = CharField(
@@ -132,6 +140,20 @@ class Company(TimeStampedModel):
     @property
     def careers_url_text(self) -> str:
         return url_to_text(self.careers_url)
+
+    @property
+    def employees_est_as_num(self) -> int | None:
+        with suppress(ValueError):
+            return int(self.employees_est)
+        if self.employees_est.strip() == "11-50":
+            range_base = "15"
+        else:
+            range_base = self.employees_est.split("-", 1)[0].strip()
+        return int(re.sub("[^0-9]", "", re.sub("[kK]", "000", range_base)))
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.employees_est_num = self.employees_est_as_num
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = "Companies"
