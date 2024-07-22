@@ -12,7 +12,10 @@ from django_tables2 import Table
 from .models import Application, Company, Posting
 
 COMPANY_ROW_ATTRS = {
-    "class": lambda record: f"company-priority-{record.priority}"
+    "class": lambda record: (
+        f"company-priority-{record.priority} "
+        + ("posting-closed" if record.available_count == 0 else "")
+    )
 }
 
 POSTING_ROW_ATTRS = {
@@ -96,8 +99,9 @@ class ApplicationCompanyCountHTMxTable(Table):
 class CompanyHTMxTable(Table):
     name = Column(attrs={"th": {"style": "width: 200px;"}})
     hq = Column(visible=False)
-    posting_count = Column(
-        verbose_name="Postings", attrs={"th": {"style": "width: 120px;"}}
+    posting_count = Column(visible=False)
+    open_posting_count = Column(
+        verbose_name="Open Postings", attrs={"th": {"style": "width: 200px;"}}
     )
     apps_count = Column(
         verbose_name="Apps", attrs={"th": {"style": "width: 120px;"}}
@@ -130,6 +134,7 @@ class CompanyHTMxTable(Table):
             "careers_urls",
             "hq",
             "posting_count",
+            "open_posting_count",
             "apps_count",
             "employees_est",
             "employees_est_num",
@@ -145,6 +150,7 @@ class CompanyHTMxTable(Table):
             "careers_urls",
             "hq",
             "posting_count",
+            "open_posting_count",
             "apps_count",
             "employees_est",
             "employees_est_num",
@@ -190,9 +196,11 @@ class CompanyHTMxTable(Table):
     def render_created(self, value: datetime, record: Any) -> str:
         return localize(value.date())
 
-    def render_posting_count(self, value: Any, record: Any) -> str:
+    def render_open_posting_count(self, value: Any, record: Any) -> str:
         url = reverse("posting_htmx") + f"?company={record.name}"
-        return format_html(f'<a href="{url}">{value}</a>')
+        return format_html(
+            f'<a href="{url}">{value}</a> / {record.posting_count}'
+        )
 
     def value_posting_count(self, value: Any) -> Any:
         return value
