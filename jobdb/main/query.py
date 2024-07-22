@@ -94,7 +94,7 @@ def posting_queue_companies_count(user: User) -> QuerySet:
     )
 
 
-def companies_with_counts() -> QuerySet:
+def companies_with_posting_counts() -> QuerySet:
     queryset = Company.objects.all().annotate(
         posting_count=Count("posting"),
         open_posting_count=Coalesce(
@@ -107,6 +107,13 @@ def companies_with_counts() -> QuerySet:
             ),
             0,
         ),
+    )
+    assert isinstance(queryset, QuerySet)
+    return queryset
+
+
+def companies_with_counts() -> QuerySet:
+    queryset = companies_with_posting_counts().annotate(
         apps_count=Coalesce(
             Subquery(
                 Application.objects.filter(posting__company=OuterRef("pk"))
