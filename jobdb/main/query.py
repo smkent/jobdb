@@ -94,7 +94,7 @@ def posting_queue_companies_count(user: User) -> QuerySet:
     )
 
 
-def companies_with_counts() -> QuerySet:
+def companies_with_posting_counts() -> QuerySet:
     queryset = Company.objects.all().annotate(
         posting_count=Count("posting"),
         open_posting_count=Coalesce(
@@ -107,6 +107,13 @@ def companies_with_counts() -> QuerySet:
             ),
             0,
         ),
+    )
+    assert isinstance(queryset, QuerySet)
+    return queryset
+
+
+def companies_with_counts() -> QuerySet:
+    queryset = companies_with_posting_counts().annotate(
         apps_count=Coalesce(
             Subquery(
                 Application.objects.filter(posting__company=OuterRef("pk"))
@@ -127,6 +134,35 @@ def companies_with_counts() -> QuerySet:
             0,
         ),
         available_count=F("open_posting_count") + F("apps_count"),
+    )
+    assert isinstance(queryset, QuerySet)
+    return queryset
+
+
+def companies_with_wa_counts() -> QuerySet:
+    queryset = companies_with_counts().annotate(
+        wa_open_posting_count=Coalesce(
+            Subquery(
+                Posting.objects.filter(in_wa=True, closed=None)
+                .filter(company=OuterRef("pk"))
+                .values("company")
+                .annotate(count=Count("pk"))
+                .values("count")
+            ),
+            0,
+        ),
+        wa_apps_count=Coalesce(
+            Subquery(
+                Application.objects.filter(
+                    posting__in_wa=True, posting__company=OuterRef("pk")
+                )
+                .values("posting__company")
+                .annotate(count=Count("pk"))
+                .values("count"),
+            ),
+            0,
+        ),
+        wa_available_count=F("wa_open_posting_count") + F("wa_apps_count"),
     )
     assert isinstance(queryset, QuerySet)
     return queryset

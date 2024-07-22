@@ -101,10 +101,16 @@ class CompanyHTMxTable(Table):
     hq = Column(visible=False)
     posting_count = Column(visible=False)
     open_posting_count = Column(
-        verbose_name="Open Postings", attrs={"th": {"style": "width: 200px;"}}
+        verbose_name="Postings", attrs={"th": {"style": "width: 120px;"}}
+    )
+    wa_open_posting_count = Column(
+        verbose_name="WA Postings", attrs={"th": {"style": "width: 140px;"}}
     )
     apps_count = Column(
-        verbose_name="Apps", attrs={"th": {"style": "width: 120px;"}}
+        verbose_name="Apps", attrs={"th": {"style": "width: 80px;"}}
+    )
+    wa_apps_count = Column(
+        verbose_name="WA Apps", attrs={"th": {"style": "width: 110px;"}}
     )
     url = Column(attrs={"th": {"style": "width: 200px;"}})
     careers_urls = Column(
@@ -115,7 +121,7 @@ class CompanyHTMxTable(Table):
     employees_est = Column(visible=False)
     employees_est_num = Column(
         verbose_name="# employees",
-        attrs={"th": {"style": "width: 200px;"}},
+        attrs={"th": {"style": "width: 140px;"}},
         exclude_from_export=True,
     )
     employees_est_source = Column(visible=False)
@@ -135,7 +141,9 @@ class CompanyHTMxTable(Table):
             "hq",
             "posting_count",
             "open_posting_count",
+            "wa_open_posting_count",
             "apps_count",
+            "wa_apps_count",
             "employees_est",
             "employees_est_num",
             "employees_est_source",
@@ -151,7 +159,9 @@ class CompanyHTMxTable(Table):
             "hq",
             "posting_count",
             "open_posting_count",
+            "wa_open_posting_count",
             "apps_count",
+            "wa_apps_count",
             "employees_est",
             "employees_est_num",
             "employees_est_source",

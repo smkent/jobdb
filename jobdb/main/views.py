@@ -29,7 +29,8 @@ from .forms import (
 )
 from .models import Application, Company, Posting, User
 from .query import (
-    companies_with_counts,
+    companies_with_posting_counts,
+    companies_with_wa_counts,
     company_posting_queue_set,
     posting_queue_companies_count,
     posting_queue_set,
@@ -68,7 +69,7 @@ class IndexView(BaseView, TemplateView):
         assert isinstance(self.request.user, User)
         companies = Company.objects.all()
         companies_with_postings = (
-            companies_with_counts()
+            companies_with_posting_counts()
             .filter(open_posting_count__gt=0)
             .order_by("-open_posting_count", Lower("name"))
         )
@@ -280,7 +281,7 @@ class CompanyHTMxTableView(BaseHTMxTableView):
     template_table_htmx_route = "company_htmx"
     table_class = CompanyHTMxTable
     filterset_class = CompanyFilter
-    queryset = companies_with_counts().order_by(Lower("name"))
+    queryset = companies_with_wa_counts().order_by(Lower("name"))
     export_name = "companies"
     action_links = [("Add company", reverse_lazy("personal:main_company_add"))]
 
