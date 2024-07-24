@@ -25,7 +25,7 @@ from import_export.admin import (  # type: ignore
 
 from ..admin import personal_admin_site
 from ..main.query import posting_with_applications
-from .models import APIKey, Application, Company, Posting, User
+from .models import APIKey, Application, Company, Posting, Priority, User
 from .resources import (
     ApplicationResource,
     CompanyResource,
@@ -156,6 +156,11 @@ class CompanyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
     ]
     list_filter = ["priority"]
     ordering = ["name"]
+    actions = [
+        "mark_priority_high",
+        "mark_priority_normal",
+        "mark_priority_low",
+    ]
     search_fields = ["name", "url"]
     resource_classes = [CompanyResource]
 
@@ -168,6 +173,27 @@ class CompanyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
         return clickable_url_html(
             obj.careers_url, display=obj.careers_url_text
         )
+
+    @action(description="Mark selected companies as high priority")
+    @require_confirmation
+    def mark_priority_high(
+        self, request: HttpRequest, queryset: QuerySet
+    ) -> Any:
+        queryset.update(priority=Priority.HIGH)
+
+    @action(description="Mark selected companies as normal priority")
+    @require_confirmation
+    def mark_priority_normal(
+        self, request: HttpRequest, queryset: QuerySet
+    ) -> Any:
+        queryset.update(priority=Priority.NORMAL)
+
+    @action(description="Mark selected companies as low priority")
+    @require_confirmation
+    def mark_priority_low(
+        self, request: HttpRequest, queryset: QuerySet
+    ) -> Any:
+        queryset.update(priority=Priority.LOW)
 
 
 class PostingClosedFilter(SimpleListFilter):
