@@ -130,6 +130,7 @@ class CompanyHTMxTable(Table):
         verbose_name="Added", attrs={"th": {"style": "width: 200px;"}}
     )
     priority = Column(attrs={"th": {"style": "width: 200px;"}})
+    filed = Column(visible=False)
 
     class Meta:
         model = Company
@@ -150,6 +151,7 @@ class CompanyHTMxTable(Table):
             "how_found",
             "created",
             "priority",
+            "filed",
             "notes",
         ]
         fields = [
@@ -168,6 +170,7 @@ class CompanyHTMxTable(Table):
             "how_found",
             "created",
             "priority",
+            "filed",
             "notes",
         ]
         row_attrs = COMPANY_ROW_ATTRS
@@ -219,6 +222,14 @@ class CompanyHTMxTable(Table):
         return str(record.employees_est)
 
     def value_employees_est_num(self, value: Any) -> Any:
+        return value
+
+    def render_priority(self, value: Any, record: Any) -> Any:
+        if record.filed is not None:
+            return "Filed"
+        return value
+
+    def value_priority(self, value: Any) -> Any:
         return value
 
 
