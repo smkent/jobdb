@@ -152,9 +152,9 @@ class CompanyAdmin(ImportExportMixin, ExportActionMixin, ModelAdmin):
         "url_clickable",
         "careers_url_clickable",
         "priority",
-        "created",
+        "filed",
     ]
-    list_filter = ["priority"]
+    list_filter = ["priority", "filed"]
     ordering = ["name"]
     actions = [
         "mark_priority_high",
