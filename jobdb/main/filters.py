@@ -53,6 +53,9 @@ class CompanyFilter(FilterSet):
         method="filter_wa_available",
         label="WA Available",
     )
+    filed = BooleanFilter(
+        field_name="filed", method="filter_filed", label="Filed"
+    )
 
     class Meta:
         model = Company
@@ -74,6 +77,13 @@ class CompanyFilter(FilterSet):
         if value:
             return queryset.filter(available_count__gt=0)
         return queryset.filter(available_count=0)
+
+    def filter_filed(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
+        if value:
+            return queryset.filter(filed__isnull=False)
+        return queryset.filter(filed=None)
 
     def filter_wa_available(
         self, queryset: QuerySet, name: str, value: bool
