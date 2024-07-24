@@ -2,11 +2,12 @@ from django.db.models import QuerySet
 from django_filters import (  # type: ignore
     BooleanFilter,
     CharFilter,
+    ChoiceFilter,
     FilterSet,
     OrderingFilter,
 )
 
-from ..main.models import Application, Company, Posting
+from ..main.models import Application, Company, Posting, Priority
 
 
 class CompanyFilter(FilterSet):
@@ -25,6 +26,12 @@ class CompanyFilter(FilterSet):
 class PostingFilter(FilterSet):
     company = CharFilter(
         field_name="company__name", lookup_expr="iexact", label=""
+    )
+    in_wa = BooleanFilter(field_name="in_wa", label="In WA")
+    priority = ChoiceFilter(
+        choices=Priority.choices,
+        field_name="company__priority",
+        label="Priority",
     )
 
     class Meta:
