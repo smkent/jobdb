@@ -123,6 +123,9 @@ class Company(TimeStampedModel):
         default=Priority.NORMAL,
         verbose_name="Priority",
     )
+    filed: DateTimeField = DateTimeField(
+        null=True, blank=True, verbose_name="Date Filed"
+    )
     notes: TextField = TextField(blank=True, verbose_name="Notes")
 
     def __str__(self) -> str:

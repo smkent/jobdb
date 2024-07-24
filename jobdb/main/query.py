@@ -28,7 +28,8 @@ def posting_with_applications(
 
 def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
     qs = posting_with_applications(
-        user=user, queryset=Posting.objects.filter(closed=None)
+        user=user,
+        queryset=Posting.objects.filter(closed=None, company__filed=None),
     ).filter(has_application=False)
     if ordered:
         qs = qs.order_by("-company__priority", Lower("company__name"), "pk")
@@ -36,7 +37,9 @@ def posting_queue_set(user: User, ordered: bool = True) -> QuerySet:
 
 
 def company_posting_queue_set(user: User) -> QuerySet:
-    base_qs = posting_with_applications(user)
+    base_qs = posting_with_applications(
+        user, queryset=Posting.objects.filter(company__filed=None)
+    )
     windowed_qs = (
         base_qs.filter(
             Q(has_application=True)
