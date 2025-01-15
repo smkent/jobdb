@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from contextlib import suppress
-from typing import Any, Sequence
+from typing import Any
 
 from django.db.models import Model, QuerySet
 from import_export.fields import Field  # type: ignore
@@ -9,8 +10,8 @@ from .models import Application, Company, Posting, User
 
 
 class ModelResourceWithoutPK(ModelResource):
-    def get_export_fields(self) -> Sequence[Field]:
-        fields = super().get_export_fields()
+    def get_export_fields(self, *args: Any, **kwargs: Any) -> Sequence[Field]:
+        fields = super().get_export_fields(*args, **kwargs)
         return [f for f in fields if f.attribute not in {"id"}]
 
     def before_import_row(self, row: dict[str, Any], **kwargs: Any) -> Any:
@@ -52,8 +53,8 @@ class PostingResource(ModelResourceWithoutPK):
         row["company"] = Company.objects.get(name=row["company_name"]).pk
         return super().before_import_row(row, **kwargs)
 
-    def get_export_fields(self) -> Sequence[Field]:
-        fields = super().get_export_fields()
+    def get_export_fields(self, *args: Any, **kwargs: Any) -> Sequence[Field]:
+        fields = super().get_export_fields(*args, **kwargs)
         return [f for f in fields if f.attribute not in {"company_id"}]
 
     class Meta:
@@ -76,8 +77,8 @@ class ApplicationResource(ModelResourceWithoutPK):
         row["posting"] = Posting.objects.get(url=row["posting_url"]).pk
         return super().before_import_row(row, **kwargs)
 
-    def get_export_fields(self) -> Sequence[Field]:
-        fields = super().get_export_fields()
+    def get_export_fields(self, *args: Any, **kwargs: Any) -> Sequence[Field]:
+        fields = super().get_export_fields(*args, **kwargs)
         return [
             f for f in fields if f.attribute not in {"user_id", "posting_id"}
         ]
@@ -102,6 +103,6 @@ class UserApplicationResource(ApplicationResource):
         row["user"] = self.user.pk
         return super().before_import_row(row, **kwargs)
 
-    def get_export_fields(self) -> Sequence[Field]:
-        fields = super().get_export_fields()
+    def get_export_fields(self, *args: Any, **kwargs: Any) -> Sequence[Field]:
+        fields = super().get_export_fields(*args, **kwargs)
         return [f for f in fields if f.attribute not in {"user__username"}]

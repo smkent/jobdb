@@ -1,7 +1,8 @@
 import re
 from contextlib import suppress
 from itertools import islice
-from typing import Any, Iterator
+from typing import Any
+from collections.abc import Iterator
 from urllib.parse import ParseResult, urlparse, urlunparse
 from uuid import UUID
 

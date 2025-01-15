@@ -1,13 +1,12 @@
 [build-system]
-requires = ["poetry-core>=1.2.0", "poetry-dynamic-versioning"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+[project]
 name = "jobdb"
-version = "0.0.0"
 description = "Jobs database"
 license = "GPL-3.0-or-later"
-authors = ["Stephen Kent <smkent@smkent.net>"]
+authors = [ { name = "Stephen Kent", email = "smkent@smkent.net" } ]
 readme = "README.md"
 repository = "https://github.com/smkent/jobdb"
 classifiers = [
@@ -16,31 +15,40 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
+requires-python = ">=3.10,<4.0"
+dynamic = [ "version" ]
+dependencies = [
+    "crispy-bootstrap5 (>=2024.2)",
+    "django (>=5.0.6)",
+    "django-bootstrap5 (>=24.2)",
+    "django-crispy-forms (>=2.2)",
+    "django-extensions (>=3.2.3)",
+    "django-filter (>=24.2)",
+    "django-htmx (>=1.18.0)",
+    "django-import-export[all] (>=4.1.0)",
+    "django-stubs[compatible-mypy] (>=5.0.2)",
+    "django-tables2 (>=2.7.0)",
+    "djangorestframework (>=3.15.2)",
+    "djangorestframework-stubs[compatible-mypy] (>=3.15.0)",
+    "drf-link-header-pagination (>=0.2.0)",
+    "drf-problems (>=1.0.5)",
+    "drf-spectacular (>=0.27.2)",
+    "gunicorn (>=22.0.0)",
+    "psycopg2-binary (>=2.9.9)",
+    "tablib[all] (>=3.5.0)",
+    "whitenoise (>=6.7.0)",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-django = "^5.0.6"
-django-stubs = {extras = ["compatible-mypy"], version = "^5.0.2"}
-django-extensions = "^3.2.3"
-psycopg2-binary = "^2.9.9"
-gunicorn = "^22.0.0"
-whitenoise = "^6.7.0"
-djangorestframework = "^3.15.2"
-djangorestframework-stubs = {extras = ["compatible-mypy"], version = "^3.15.0"}
-drf-spectacular = "^0.27.2"
-django-filter = "^24.2"
-drf-link-header-pagination = "^0.2.0"
-drf-problems = "^1.0.5"
-django-tables2 = "^2.7.0"
-django-htmx = "^1.18.0"
-django-crispy-forms = "^2.2"
-django-bootstrap5 = "^24.2"
-crispy-bootstrap5 = "^2024.2"
-tablib = {extras = ["all"], version = "^3.5.0"}
-pytest-django = "^4.8.0"
-django-import-export = {extras = ["all"], version = "^4.1.0"}
+[project.scripts]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry]
+requires-poetry = ">=2.0"
+version = "0.0.0"
+
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
+
+[tool.poetry.group.dev.dependencies]
 bandit = {extras = ["toml"], version = "*"}
 black = "*"
 cruft = "*"
@@ -55,10 +63,9 @@ poethepoet = "*"
 pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
+pytest-django = "^4.8.0"
 pytest-github-actions-annotate-failures = "*"
 pytest-sugar = "*"
-
-[tool.poetry.scripts]
 
 [tool.poetry-dynamic-versioning]
 enable = true
