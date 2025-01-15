@@ -1,5 +1,6 @@
 from contextlib import suppress
-from typing import Any, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 from django.db.models import Model, QuerySet
 from import_export.fields import Field  # type: ignore

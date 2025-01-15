@@ -1,4 +1,5 @@
-from typing import Any, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, F, Max, Model, QuerySet, When
